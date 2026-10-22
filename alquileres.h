@@ -1,6 +1,6 @@
 typedef struct{
 	int mes, dia, anio;
-}fecha; 
+}fecha;
 typedef struct{
 	int nroAlquiler;
 	int dniCliente;
