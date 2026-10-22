@@ -29,21 +29,21 @@ int main(){
             break;
             case 4:
                 //menuDevoluciones();
-                printf("Modulo en desarrollo.\n");
+                printf("\nModulo en desarrollo.\n");
             break;
             case 5:
                 menuPagos();
-                printf("Modulo en desarrollo.\n");
+                printf("\nModulo en desarrollo.\n");
             break;
             case 6:
                 //menuReportes();
-                printf("Modulo en desarrollo.\n");
+                printf("\nModulo en desarrollo.\n");
             break;
             case 0:
-                printf("Saliendo...\n");
+                printf("\nSaliendo...\n");
             break;
             default:
-                printf("Opcion incorrecta.\n");
+                printf("\nOpcion incorrecta.\n");
         }
     }while(opcion != 0);
     return 0;
