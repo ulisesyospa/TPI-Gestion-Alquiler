@@ -1,4 +1,3 @@
-//prueba
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -113,8 +112,6 @@ void listarAlquileres(void){
 	if(contador == 0){
 		printf("No hay alquileres registrados en el sistema.\n");
 	}
-	
 }
-hola que onda 
-esto es una prubea 
+
 
