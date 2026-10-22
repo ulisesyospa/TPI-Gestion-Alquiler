@@ -113,5 +113,5 @@ void listarAlquileres(void){
 		printf("No hay alquileres registrados en el sistema.\n");
 	}
 }
-
+prueba 
 
