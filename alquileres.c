@@ -37,6 +37,57 @@ char buffer[100];
         }
     }
 }
+void patenteValida(char *destino, int tamano, const char *mensaje) {
+	char buffer[100];
+	int i;
+	int longitud;
+
+    while (1) {
+        printf("%s", mensaje);
+
+        if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+
+            // 1 saca salto de linea
+            buffer[strcspn(buffer, "\n")] = '\0';
+
+            // 2 control de apretar enter sin cargar nada 
+            if (strlen(buffer) == 0) {
+                printf("[Aviso] No ingreso ningun dato. Por favor, ingrese la patente.\n\n");
+                continue;
+            }
+
+            // 3 valida la longitud de la patente (Podemos cambiar aun) 
+            longitud = (int)strlen(buffer);
+            if (longitud < 6 || longitud > 8) {
+                printf("[Error] La patente debe tener entre 6 y 8 caracteres.\n\n");
+                continue;
+            }
+
+            // 4 verifica que esten cargados numeros y letras (Alfanumérico) (las letras minusculas las pasa a mayusculas)
+            int esValido = 1;
+            for ( i = 0; i < longitud; i++) {
+                char c = buffer[i];
+
+                if (c >= 'a' && c <= 'z') {
+                    buffer[i] = c - 32; // Paso manual a mayuscula
+                } else if (!(c >= 'A' && c <= 'Z') && !(c >= '0' && c <= '9')) {
+                    esValido = 0; // tiene un simbolo o espacio invalido
+                    break;
+                }
+            }
+
+            if (!esValido) {
+                printf("[Error] La patente solo debe contener letras y numeros (sin espacios ni simbolos).\n\n");
+                continue;
+            }
+
+            // 5 se copia a la estructura 
+            strncpy(destino, buffer, tamano - 1);
+            destino[tamano - 1] = '\0';
+            break;
+        }
+    }
+}
 
 
 int fechaValida(int dia, int mes, int anio){
@@ -139,8 +190,7 @@ void realizarAlquiler(void){
 	
 	nuevo.dniCliente = verificacionEntero("Ingrese DNI del cliente: ");
 		
-    printf("Ingrese patente del vehiculo: ");
-    scanf("%s", nuevo.patenteVehiculo);
+	patenteValida(nuevo.patenteVehiculo, sizeof(nuevo.patenteVehiculo), "Ingrese patente del vehiculo: ");
 
     FILE *fVeh = fopen("vehiculos.dat", "rb+");
 
