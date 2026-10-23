@@ -7,6 +7,37 @@
 #include "vehiculos.h"
 #include "movimiento.h"
 
+int verificacionEntero(const char *mensaje) {
+char buffer[100];
+    char basura;
+    int numero;
+
+    while (1) {
+        printf("%s", mensaje);
+
+        if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+            
+            // Caso 1: El usuario solo apretó Enter 
+            if (buffer[0] == '\n' || buffer[0] == '\r') {
+                printf("[Aviso] No ingreso ningun dato. Por favor, ingrese un DNI.\n\n");
+                continue;
+            }
+
+            // Caso 2: revisa que el nro cargado no tenga caracteres
+            if (sscanf(buffer, " %d %c", &numero, &basura) == 1) {
+                if (numero > 0) {
+                    return numero;
+                } else {
+                    printf("[Error] El número debe ser un entero positivo mayor a 0.\n\n");
+                }
+            } else {
+                // Caso 3: Escribió letras, símbolos o un formato no válido
+                printf("[Error] Entrada inválida. Debe ingresar estrictamente un numero (sin letras ni espacios).\n\n");
+            }
+        }
+    }
+}
+
 
 int fechaValida(int dia, int mes, int anio){
     struct tm fecha = {0};
@@ -95,10 +126,7 @@ void menuAlquileres(void){
 
 void realizarAlquiler(void){
 	alquiler nuevo;
-    char buffer[100];
-    char basura;
-    int esValido = 0; 
-
+ 
     printf("\n=== REALIZAR ALQUILER ===\n");
     //limpiamos el \n de apretar enter por seleccionar el nro 
     limpiarBuffer();
@@ -109,30 +137,8 @@ void realizarAlquiler(void){
 
     printf("Numero de alquiler asignado: %d\n", nuevo.nroAlquiler);
 	
-	do {
-		printf("Ingrese DNI del cliente: ");
+	nuevo.dniCliente = verificacionEntero("Ingrese DNI del cliente: ");
 		
-    	if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
-    		
-    			//Comprobar que sea numero entero (%d) sin caracteres extra al final (%c)
-    			
-    		if (sscanf(buffer, " %d %c", &nuevo.dniCliente, &basura) == 1) { 
-    			//sscanf :Intenta extraer el número entero positivo de esa línea capturada.	
-    			//verificar que sea mayor a 0
-    			
-				if (nuevo.dniCliente > 0) {
-					esValido = 1; //sale del do while
-				}	
-				else{
-					printf("[Error] El DNI debe ser un numero positivo.\n");
-				}
-			}
-			else {
-				printf("[Error] Debe ingresar estrictamente un numero (sin letras ni espacios vacios).\n");
-			}
-    	}
-	}while(!esValido);
-
     printf("Ingrese patente del vehiculo: ");
     scanf("%s", nuevo.patenteVehiculo);
 

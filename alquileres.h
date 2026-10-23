@@ -17,3 +17,4 @@ typedef struct{
 void menuAlquileres(void);
 void realizarAlquiler(void);
 void listarAlquileres(void);
+int verificacionEntero(const char *mensaje);
