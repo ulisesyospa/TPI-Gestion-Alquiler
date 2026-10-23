@@ -1,3 +1,4 @@
+#pragma once 
 typedef struct{
 	char patente[10];
 	char marca[30];

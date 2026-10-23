@@ -1,3 +1,4 @@
+#pragma once 
 typedef struct{
 	int mes, dia, anio;
 }fecha;
