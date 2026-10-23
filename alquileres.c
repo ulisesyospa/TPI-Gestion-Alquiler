@@ -94,18 +94,44 @@ void menuAlquileres(void){
 
 
 void realizarAlquiler(void){
-    alquiler nuevo;
+	alquiler nuevo;
+    char buffer[100];
+    char basura;
+    int esValido = 0; 
 
     printf("\n=== REALIZAR ALQUILER ===\n");
+    //limpiamos el \n de apretar enter por seleccionar el nro 
+    limpiarBuffer();
 
     /* NUMERO AUTOMATICO */
 
     nuevo.nroAlquiler = generarNumeroAlquiler();
 
     printf("Numero de alquiler asignado: %d\n", nuevo.nroAlquiler);
-
-    printf("Ingrese DNI del cliente: ");
-    scanf("%d", &nuevo.dniCliente);
+	
+	do {
+		printf("Ingrese DNI del cliente: ");
+		
+    	if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+    		
+    			//Comprobar que sea numero entero (%d) sin caracteres extra al final (%c)
+    			
+    		if (sscanf(buffer, " %d %c", &nuevo.dniCliente, &basura) == 1) { 
+    			//sscanf :Intenta extraer el número entero positivo de esa línea capturada.	
+    			//verificar que sea mayor a 0
+    			
+				if (nuevo.dniCliente > 0) {
+					esValido = 1; //sale del do while
+				}	
+				else{
+					printf("[Error] El DNI debe ser un numero positivo.\n");
+				}
+			}
+			else {
+				printf("[Error] Debe ingresar estrictamente un numero (sin letras ni espacios vacios).\n");
+			}
+    	}
+	}while(!esValido);
 
     printf("Ingrese patente del vehiculo: ");
     scanf("%s", nuevo.patenteVehiculo);
