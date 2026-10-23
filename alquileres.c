@@ -5,6 +5,7 @@
 #include <time.h>
 #include "alquileres.h"
 #include "vehiculos.h"
+#include "movimiento.h"
 
 
 int fechaValida(int dia, int mes, int anio){
