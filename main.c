@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "clientes.h"
 #include "vehiculos.h"
+#include "consultasReportes.h"
 int main(){
     int opcion;
     do{
@@ -36,8 +37,7 @@ int main(){
                 printf("Modulo en desarrollo.\n");
             break;
             case 6:
-                //menuReportes();
-                printf("Modulo en desarrollo.\n");
+                menuConsultasyReportes();
             break;
             case 0:
                 printf("Saliendo...\n");

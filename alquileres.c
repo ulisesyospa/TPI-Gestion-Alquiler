@@ -65,9 +65,9 @@ void menuAlquileres(void){
 
     do{
         printf("\n=== MENU ALQUILERES ===\n");
-        printf("1. Realizar alquiler:\n");
-        printf("2. Listar alquileres:\n");
-        printf("0. Volver al menu principal:\n");
+        printf("1. Realizar alquiler\n");
+        printf("2. Listar alquileres\n");
+        printf("0. Volver al menu principal\n");
         printf("Seleccione una opcion: ");
         scanf("%d", &opcion);
 
