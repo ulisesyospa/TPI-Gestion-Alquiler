@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0000000000000000000000000
-UnitCount=11
+UnitCount=13
 
 [VersionInfo]
 Major=1
@@ -50,18 +50,8 @@ ProductVersion=
 AutoIncBuildNr=0
 SyncProduct=1
 
-[Unit1]
-FileName=main.c
-CompileCpp=0
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit2]
-FileName=clientes.c
+FileName=clientes.h
 CompileCpp=0
 Folder=
 Compile=1
@@ -71,27 +61,17 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit3]
-FileName=clientes.h
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-CompileCpp=0
-
-[Unit4]
 FileName=tpi.dev
-CompileCpp=0
 Folder=
 Compile=0
 Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=0
 
 [Unit5]
-FileName=vehiculos.c
+FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\alquileres.h
 Folder=
 Compile=1
 Link=1
@@ -99,39 +79,9 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 CompileCpp=0
-
-[Unit6]
-FileName=vehiculos.h
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-CompileCpp=0
-
-[Unit7]
-FileName=consultas.c
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-CompileCpp=0
-
-[Unit8]
-FileName=alquileres.c
-CompileCpp=0
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
 
 [Unit9]
-FileName=alquileres.h
+FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\main.c
 Folder=
 Compile=1
 Link=1
@@ -141,7 +91,7 @@ BuildCmd=
 CompileCpp=0
 
 [Unit10]
-FileName=movimiento.h
+FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\movimiento.c
 CompileCpp=0
 Folder=
 Compile=1
@@ -151,17 +101,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit11]
-FileName=movimiento.c
-CompileCpp=0
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
-[Unit12]
-FileName=alquileres.c
+FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\movimiento.h
 CompileCpp=0
 Folder=
 Compile=1
@@ -171,7 +111,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit13]
-FileName=alquileres.h
+FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\vehiculos.h
 CompileCpp=0
 Folder=
 Compile=1
@@ -202,6 +142,66 @@ BuildCmd=
 
 [Unit16]
 FileName=movimiento.c
+CompileCpp=0
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit1]
+FileName=clientes.c
+CompileCpp=0
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit4]
+FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\alquileres.c
+CompileCpp=0
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit6]
+FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\consultas.c
+CompileCpp=0
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit7]
+FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\consultasReportes.h
+CompileCpp=0
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit8]
+FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\consultasyReportes.c
+CompileCpp=0
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit12]
+FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\vehiculos.c
 CompileCpp=0
 Folder=
 Compile=1
