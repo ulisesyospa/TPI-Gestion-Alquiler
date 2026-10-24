@@ -18,4 +18,4 @@ void menuAlquileres(void);
 void realizarAlquiler(void);
 void listarAlquileres(void);
 int verificacionEntero(const char *mensaje);
-void patenteValida(char *destino, int tamano, const char *mensaje)
+void patenteValida(char *destino, int tamano, const char *mensaje);

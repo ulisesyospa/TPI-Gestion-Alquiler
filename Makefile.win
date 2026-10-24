@@ -1,11 +1,11 @@
-# Project: Project3
+# Project: Proyecto5
 # Makefile created by Dev-C++ 5.11
 
 CPP      = g++.exe
 CC       = gcc.exe
 WINDRES  = windres.exe
-OBJ      = main.o clientes.o vehiculos.o consultas.o alquileres.o movimiento.o
-LINKOBJ  = main.o clientes.o vehiculos.o consultas.o alquileres.o movimiento.o
+OBJ      = main.o alquileres.o clientes.o consultasyReportes.o movimiento.o vehiculos.o
+LINKOBJ  = main.o alquileres.o clientes.o consultasyReportes.o movimiento.o vehiculos.o
 LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc
 INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include"
 CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++"
@@ -27,17 +27,17 @@ $(BIN): $(OBJ)
 main.o: main.c
 	$(CC) -c main.c -o main.o $(CFLAGS)
 
-clientes.o: clientes.c
-	$(CC) -c clientes.c -o clientes.o $(CFLAGS)
-
-vehiculos.o: vehiculos.c
-	$(CC) -c vehiculos.c -o vehiculos.o $(CFLAGS)
-
-consultas.o: consultas.c
-	$(CC) -c consultas.c -o consultas.o $(CFLAGS)
-
 alquileres.o: alquileres.c
 	$(CC) -c alquileres.c -o alquileres.o $(CFLAGS)
 
+clientes.o: clientes.c
+	$(CC) -c clientes.c -o clientes.o $(CFLAGS)
+
+consultasyReportes.o: consultasyReportes.c
+	$(CC) -c consultasyReportes.c -o consultasyReportes.o $(CFLAGS)
+
 movimiento.o: movimiento.c
 	$(CC) -c movimiento.c -o movimiento.o $(CFLAGS)
+
+vehiculos.o: vehiculos.c
+	$(CC) -c vehiculos.c -o vehiculos.o $(CFLAGS)
