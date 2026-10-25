@@ -6,6 +6,7 @@
 #include "vehiculos.h"
 #include "alquileres.h"
 #include "clientes.h"
+#include "movimiento.h"
 
 
 void menuConsultasyReportes(void){
@@ -49,23 +50,28 @@ void menuConsultasyReportes(void){
                 break;
 
             case 6:
-                // Alquileres por estado
+            	printf (" \n ---------------En desarrollo.... \n---------------");
+                 alquileresPorEstado();
                 break;
 
             case 7:
                 // Alquileres por importe
+                printf (" \nEn desarrollo....\n");
                 break;
 
             case 8:
                 // Pagos realizados
+                printf (" \nEn desarrollo....\n");
                 break;
 
             case 9:
                 // Clientes con deuda
+                printf (" \nEn desarrollo....\n");
                 break;
 
             case 10:
                 // Estadisticas de la empresa
+                printf (" \nEn desarrollo....\n");
                 break;
 
             case 0:
@@ -82,7 +88,7 @@ void menuConsultasyReportes(void){
 
 
 void vehiculosDisponibles(void){
-	
+	 
 	vehiculo v;
 	int contador=0;
 	FILE *archivo;
@@ -130,7 +136,7 @@ void vehiculosAlquilados(){
 	
 	archivoV= fopen("vehiculos.dat", "rb");
 	if(archivoV==NULL){
-		printf("[ERROR] No se pudo abrir el archivo.\n");
+		printf("[ERROR] No se pudo abrir el archivo de vehiculos.\n");
 		return;
 	}
 	
@@ -595,6 +601,112 @@ void alquileresPorVehiculo(void){
     }
 
     fclose(archivoA);
+}
+
+void alquileresPorEstado(void){
+    FILE *archivo;
+    alquiler a;
+    char texto[100];
+    char nombreEstado[20];
+    int estado;
+    int contador;
+ 
+    do{
+        contador = 0;
+ 
+        printf("\n--- ALQUILERES POR ESTADO ---\n");
+        printf("1. Activos\n");
+        printf("2. Finalizados\n");
+        printf("0. Cancelados\n");
+        printf("9. Volver al menu de consultas y reportes\n");
+ 
+        /* Ingresar y validar la opcion */
+        while (1){
+            printf("Seleccione una opcion: ");
+ 
+            if (scanf(" %99[^\n]", texto) != 1){
+                return;
+            }
+ 
+            limpiarEntradaCR();
+ 
+            /* Solo se acepta un unico caracter: 0, 1, 2 o 9 */
+            if (strlen(texto) == 1 && (texto[0] == '0' || texto[0] == '1' || texto[0] == '2' || texto[0] == '9')){
+                estado = texto[0] - '0';
+                break;
+            }
+ 
+            printf("Opcion incorrecta. Ingrese 1 (Activos), 2 (Finalizados), 0 (Cancelados) o 9 (Volver).\n");
+        }
+ 
+        /* Si eligio 9 no se consulta nada: el while de abajo termina y vuelve al menu */
+        if (estado != 9){
+ 
+            if (estado == 1){
+                strcpy(nombreEstado, "Activo");
+            }
+            else if (estado == 2){
+                strcpy(nombreEstado, "Finalizado");
+            }
+            else{
+                strcpy(nombreEstado, "Cancelado");
+            }
+ 
+            /* Abrir el archivo de alquileres */
+            archivo = fopen("alquileres.dat", "rb");
+ 
+            if (archivo == NULL){
+                printf("No se pudo abrir el archivo de alquileres.\n");
+                return;
+            }
+ 
+            printf("\nAlquileres con estado %s:\n", nombreEstado);
+ 
+            /* Recorrer los alquileres y mostrar los que tienen ese estado */
+            while (fread(&a, sizeof(alquiler), 1, archivo) == 1){
+                if (a.estado == estado){
+                    printf("\nNumero de alquiler: %d\n", a.nroAlquiler);
+                    printf("DNI del cliente: %d\n", a.dniCliente);
+                    printf("Patente del vehiculo: %s\n", a.patenteVehiculo);
+ 
+                    printf("Fecha de inicio: %02d/%02d/%04d\n",
+                           a.fecInicio.dia,
+                           a.fecInicio.mes,
+                           a.fecInicio.anio);
+ 
+                    printf("Fecha prevista de devolucion: %02d/%02d/%04d\n",
+                           a.fecPrevitaDevolucion.dia,
+                           a.fecPrevitaDevolucion.mes,
+                           a.fecPrevitaDevolucion.anio);
+ 
+                    /* La fecha efectiva solo existe cuando el alquiler ya fue devuelto */
+                    if (a.estado == 2){
+                        printf("Fecha efectiva de devolucion: %02d/%02d/%04d\n",
+                               a.fecEfectivaDevolucion.dia,
+                               a.fecEfectivaDevolucion.mes,
+                               a.fecEfectivaDevolucion.anio);
+                    }
+ 
+                    printf("Cantidad de dias: %d\n", a.cantidadDias);
+                    printf("Importe total: $%.2f\n", a.importeTotal);
+                    printf("Importe pagado: $%.2f\n", a.importePagado);
+                    printf("Estado del alquiler: %s\n", nombreEstado);
+ 
+                    contador++;
+                }
+            }
+ 
+            if (contador == 0){
+                printf("\nNo hay alquileres con estado %s.\n", nombreEstado);
+            }
+            else{
+                printf("\nTotal de alquileres con estado %s: %d\n", nombreEstado, contador);
+            }
+ 
+            fclose(archivo);
+        }
+ 
+    }while (estado != 9);
 }
 
 
