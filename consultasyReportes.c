@@ -50,7 +50,6 @@ void menuConsultasyReportes(void){
                 break;
 
             case 6:
-            	printf (" \n ---------------En desarrollo.... \n---------------");
                  alquileresPorEstado();
                 break;
 
@@ -60,13 +59,12 @@ void menuConsultasyReportes(void){
                 break;
 
             case 8:
-                // Pagos realizados
-                printf (" \nEn desarrollo....\n");
+                pagosRealizados(); 
                 break;
 
             case 9:
-                // Clientes con deuda
-                printf (" \nEn desarrollo....\n");
+                clientesConDeuda();
+                
                 break;
 
             case 10:
@@ -706,6 +704,161 @@ void alquileresPorEstado(void){
         }
  
     }while (estado != 9);
+}
+
+void pagosRealizados(void) {
+	
+	FILE *archivo;
+    movimiento m;
+    fecha inicial, final;
+    int numInicial, numFinal, numPago;
+    int contador = 0;
+ 
+    printf("\n--- PAGOS REALIZADOS ---\n");
+ 
+    // se ingresa la primera fecha
+    while (1){
+        printf("\nFecha inicial:\n");
+ 
+        if (leerFechaCR(&inicial) == 0){
+            printf("Fecha incorrecta. Intente nuevamente.\n");
+        }
+        else{
+            break;
+        }
+    }
+ 
+    // se convierte a un numero AAAAMMDD para poder compararlas 
+    numInicial = inicial.anio * 10000 + inicial.mes * 100 + inicial.dia;
+ 
+    // se ingresa la fecha final 
+    while (1){
+        printf("\nFecha final:\n");
+ 
+        if (leerFechaCR(&final) == 0){
+            printf("Fecha incorrecta. Intente nuevamente.\n");
+        }
+        else{
+        	
+        	// se convierte a un numero AAAAMMDD para poder compararlas 
+            numFinal = final.anio * 10000 + final.mes * 100 + final.dia;
+ 
+            if (numFinal < numInicial){
+                printf("La fecha final no puede ser anterior a la inicial.\n");
+            }
+            else{
+                break;
+            }
+        }
+    }
+ 
+    archivo = fopen("movimientos.dat", "rb");
+ 
+    if (archivo == NULL){
+        printf("No se pudo abrir el archivo de movimientos o aun no hay pagos registrados.\n");
+        return;
+    }
+ 
+    printf("\nPagos realizados entre %02d/%02d/%04d y %02d/%02d/%04d:\n",
+           inicial.dia, inicial.mes, inicial.anio,
+           final.dia, final.mes, final.anio);
+ 
+    // Recorre los movimientos y mmuestra solo los pagos dentro del periodo 
+    
+    while (fread(&m, sizeof(movimiento), 1, archivo) == 1){
+        numPago = m.fec.anio * 10000 + m.fec.mes * 100 + m.fec.dia;
+ 
+        if (strcmp(m.tipoMovimiento, "Pago") == 0 && numPago >= numInicial && numPago <= numFinal){
+            printf("\nNumero de movimiento: %d\n", m.nroMovimiento);
+            printf("Numero de alquiler: %d\n", m.nroAlquiler);
+            printf("DNI del cliente: %d\n", m.dniCliente);
+            printf("Patente del vehiculo: %s\n", m.patenteVehiculo);
+ 
+            printf("Fecha del pago: %02d/%02d/%04d\n",
+                   m.fec.dia,
+                   m.fec.mes,
+                   m.fec.anio);
+ 
+            printf("Monto: $%.2f\n", m.monto);
+ 
+            contador++;
+        }
+    }
+ 
+    if (contador == 0){
+        printf("\nNo se encontraron pagos en ese periodo.\n");
+    }
+    else{
+        printf("\nCantidad de pagos encontrados: %d\n", contador);
+    }
+ 
+    fclose(archivo);
+}
+
+void clientesConDeuda(void) {
+	FILE *archivoA, *archivoC;
+    alquiler a;
+    cliente c;
+    char nombre[60];
+    float saldo;
+    int contador = 0;
+ 
+    archivoA = fopen("alquileres.dat", "rb");
+ 
+    if (archivoA == NULL){
+        printf("No se pudo abrir el archivo de alquileres.\n");
+        return;
+    }
+ 
+    archivoC = fopen("clientes.dat", "rb");
+ 
+    if (archivoC == NULL){
+        printf("No se pudo abrir el archivo de clientes.\n");
+        fclose(archivoA);
+        return;
+    }
+ 
+    printf("\n--- CLIENTES CON DEUDA ---\n");
+ 
+    // recorremos los alquileres 
+    while (fread(&a, sizeof(alquiler), 1, archivoA) == 1){
+        saldo = a.importeTotal - a.importePagado;
+ 
+        // Hay deuda si el importe total supera al pagado.
+        //Los alquileres cancelados (estado 0) no se cobran, asi que no cuentan. 
+        if (a.estado != 0 && saldo > 0.005){
+ 
+            // Busca nombre del cliente 
+            strcpy(nombre, "Cliente no encontrado");
+            rewind(archivoC);
+ 
+            while (fread(&c, sizeof(cliente), 1, archivoC) == 1){
+                if (c.dni == a.dniCliente){
+                    strcpy(nombre, c.apellidoNombre);
+                    break;
+                }
+            }
+ 
+            printf("\nDNI: %d\n", a.dniCliente);
+            printf("Nombre: %s\n", nombre);
+            printf("Alquiler: %d\n", a.nroAlquiler);
+            printf("Importe total: $%.2f\n", a.importeTotal);
+            printf("Importe pagado: $%.2f\n", a.importePagado);
+            printf("Saldo pendiente: $%.2f\n", saldo);
+ 
+            contador++;
+        }
+    }
+ 
+    if (contador == 0){
+        printf("\nNo hay clientes con deuda.\n");
+    }
+    else{
+        printf("\nCantidad de alquileres con deuda: %d\n", contador);
+    }
+ 
+    fclose(archivoA);
+    fclose(archivoC);
 }
 
 
