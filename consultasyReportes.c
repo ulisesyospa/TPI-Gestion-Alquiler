@@ -620,7 +620,6 @@ void alquileresPorEstado(void){
         printf("0. Cancelados\n");
         printf("9. Volver al menu de consultas y reportes\n");
  
-        /* Ingresar y validar la opcion */
         while (1){
             printf("Seleccione una opcion: ");
  
@@ -630,7 +629,8 @@ void alquileresPorEstado(void){
  
             limpiarEntradaCR();
  
-            /* Solo se acepta un unico caracter: 0, 1, 2 o 9 */
+            // control para que solo se admita 1,2,0 o 9
+			 
             if (strlen(texto) == 1 && (texto[0] == '0' || texto[0] == '1' || texto[0] == '2' || texto[0] == '9')){
                 estado = texto[0] - '0';
                 break;
@@ -639,7 +639,7 @@ void alquileresPorEstado(void){
             printf("Opcion incorrecta. Ingrese 1 (Activos), 2 (Finalizados), 0 (Cancelados) o 9 (Volver).\n");
         }
  
-        /* Si eligio 9 no se consulta nada: el while de abajo termina y vuelve al menu */
+        //si detecta 9 no entra al while
         if (estado != 9){
  
             if (estado == 1){
@@ -652,7 +652,6 @@ void alquileresPorEstado(void){
                 strcpy(nombreEstado, "Cancelado");
             }
  
-            /* Abrir el archivo de alquileres */
             archivo = fopen("alquileres.dat", "rb");
  
             if (archivo == NULL){
@@ -662,7 +661,7 @@ void alquileresPorEstado(void){
  
             printf("\nAlquileres con estado %s:\n", nombreEstado);
  
-            /* Recorrer los alquileres y mostrar los que tienen ese estado */
+            // Recorrer los alquileres y muestrar los que tienen ese estado 
             while (fread(&a, sizeof(alquiler), 1, archivo) == 1){
                 if (a.estado == estado){
                     printf("\nNumero de alquiler: %d\n", a.nroAlquiler);
@@ -679,7 +678,7 @@ void alquileresPorEstado(void){
                            a.fecPrevitaDevolucion.mes,
                            a.fecPrevitaDevolucion.anio);
  
-                    /* La fecha efectiva solo existe cuando el alquiler ya fue devuelto */
+                    // entra solo cuando el vehiculo ya fue devuelto
                     if (a.estado == 2){
                         printf("Fecha efectiva de devolucion: %02d/%02d/%04d\n",
                                a.fecEfectivaDevolucion.dia,
@@ -708,6 +707,8 @@ void alquileresPorEstado(void){
  
     }while (estado != 9);
 }
+
+
 
 
 
