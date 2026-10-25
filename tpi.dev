@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0000000000000000000000000
-UnitCount=13
+UnitCount=11
 
 [VersionInfo]
 Major=1
@@ -61,17 +61,17 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit3]
-FileName=tpi.dev
+FileName=consultasReportes.h
 Folder=
-Compile=0
-Link=0
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 CompileCpp=0
 
 [Unit5]
-FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\alquileres.h
+FileName=vehiculos.h
 Folder=
 Compile=1
 Link=1
@@ -81,7 +81,7 @@ BuildCmd=
 CompileCpp=0
 
 [Unit9]
-FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\main.c
+FileName=main.c
 Folder=
 Compile=1
 Link=1
@@ -91,7 +91,7 @@ BuildCmd=
 CompileCpp=0
 
 [Unit10]
-FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\movimiento.c
+FileName=movimiento.c
 CompileCpp=0
 Folder=
 Compile=1
@@ -101,7 +101,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit11]
-FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\movimiento.h
+FileName=vehiculos.c
 CompileCpp=0
 Folder=
 Compile=1
@@ -150,18 +150,8 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit1]
-FileName=clientes.c
-CompileCpp=0
-Folder=
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit4]
-FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\alquileres.c
+FileName=movimiento.h
 CompileCpp=0
 Folder=
 Compile=1
@@ -171,7 +161,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit6]
-FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\consultas.c
+FileName=alquileres.c
 CompileCpp=0
 Folder=
 Compile=1
@@ -181,7 +171,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit7]
-FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\consultasReportes.h
+FileName=clientes.c
 CompileCpp=0
 Folder=
 Compile=1
@@ -191,7 +181,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit8]
-FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\consultasyReportes.c
+FileName=consultasyReportes.c
 CompileCpp=0
 Folder=
 Compile=1
@@ -202,6 +192,16 @@ BuildCmd=
 
 [Unit12]
 FileName=..\..\..\Desktop\tpi de luciano\Tpi\Tpi\vehiculos.c
+CompileCpp=0
+Folder=
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit1]
+FileName=alquileres.h
 CompileCpp=0
 Folder=
 Compile=1
