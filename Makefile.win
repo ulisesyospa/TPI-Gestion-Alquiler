@@ -1,11 +1,11 @@
-# Project: Tpi 
+# Project: Proyecto5
 # Makefile created by Dev-C++ 5.11
 
 CPP      = g++.exe
 CC       = gcc.exe
 WINDRES  = windres.exe
-OBJ      = clientes.o alquileres.o consultasyReportes.o main.o movimiento.o vehiculos.o
-LINKOBJ  = clientes.o alquileres.o consultasyReportes.o main.o movimiento.o vehiculos.o
+OBJ      = alquileres.o clientes.o consultasyReportes.o main.o movimiento.o vehiculos.o
+LINKOBJ  = alquileres.o clientes.o consultasyReportes.o main.o movimiento.o vehiculos.o
 LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc
 INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include"
 CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++"
@@ -24,11 +24,11 @@ clean: clean-custom
 $(BIN): $(OBJ)
 	$(CC) $(LINKOBJ) -o $(BIN) $(LIBS)
 
-clientes.o: clientes.c
-	$(CC) -c clientes.c -o clientes.o $(CFLAGS)
-
 alquileres.o: alquileres.c
 	$(CC) -c alquileres.c -o alquileres.o $(CFLAGS)
+
+clientes.o: clientes.c
+	$(CC) -c clientes.c -o clientes.o $(CFLAGS)
 
 consultasyReportes.o: consultasyReportes.c
 	$(CC) -c consultasyReportes.c -o consultasyReportes.o $(CFLAGS)

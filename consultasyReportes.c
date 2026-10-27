@@ -54,8 +54,7 @@ void menuConsultasyReportes(void){
                 break;
 
             case 7:
-                // Alquileres por importe
-                printf (" \nEn desarrollo....\n");
+                alquileresPorImporte();
                 break;
 
             case 8:
@@ -68,8 +67,7 @@ void menuConsultasyReportes(void){
                 break;
 
             case 10:
-                // Estadisticas de la empresa
-                printf (" \nEn desarrollo....\n");
+                estadisticasEmpresa();
                 break;
 
             case 0:
@@ -704,7 +702,67 @@ void alquileresPorEstado(void){
         }
  
     }while (estado != 9);
+
 }
+
+
+
+
+
+void alquileresPorImporte(void){
+    FILE *archivo;
+    alquiler a;
+    float importe;
+    int opcion;
+    int contador = 0;
+
+    archivo = fopen("alquileres.dat", "rb");
+
+    if(archivo == NULL){
+        printf("[Error] No se pudo abrir el archivo de alquileres.\n");
+        return;
+    }
+
+    printf("\n=== ALQUILERES POR IMPORTE ===\n");
+    printf("Ingrese un importe: ");
+    scanf("%f", &importe);
+
+    printf("\n1. Alquileres superiores al importe\n");
+    printf("2. Alquileres inferiores al importe\n");
+    printf("Seleccione una opcion: ");
+    scanf("%d", &opcion);
+
+    if(opcion != 1 && opcion != 2){
+        printf("[Error] Opcion invalida.\n");
+        fclose(archivo);
+        return;
+    }
+
+    while(fread(&a, sizeof(alquiler), 1, archivo) == 1){
+
+        if((opcion == 1 && a.importeTotal > importe) ||
+           (opcion == 2 && a.importeTotal < importe)){
+
+            printf("\nNro Alquiler: %d\n", a.nroAlquiler);
+            printf("DNI Cliente: %d\n", a.dniCliente);
+            printf("Patente: %s\n", a.patenteVehiculo);
+            printf("Importe Total: $%.2f\n", a.importeTotal);
+
+            contador++;
+        }
+    }
+
+    if(contador == 0){
+        printf("\nNo se encontraron alquileres con ese criterio.\n");
+    }
+
+    fclose(archivo);
+}
+
+
+
+
+
 
 void pagosRealizados(void) {
 	
@@ -865,7 +923,75 @@ void clientesConDeuda(void) {
 
 
 
+void estadisticasEmpresa(void){
+    FILE *archivoV;
+    FILE *archivoA;
 
+    vehiculo v;
+    alquiler a;
 
+    int totalVehiculos = 0;
+    int disponibles = 0;
+    int alquilados = 0;
 
+    int totalAlquileres = 0;
+    int alquileresActivos = 0;
+
+    float totalCobrado = 0;
+    float totalPendiente = 0;
+
+    archivoV = fopen("vehiculos.dat", "rb");
+
+    if(archivoV == NULL){
+        printf("[Error] No se pudo abrir vehiculos.dat\n");
+        return;
+    }
+
+    while(fread(&v, sizeof(vehiculo), 1, archivoV) == 1){
+
+        totalVehiculos++;
+
+        if(v.estado == 1){
+            disponibles++;
+        }else if(v.estado == 2){
+            alquilados++;
+        }
+    }
+
+    fclose(archivoV);
+
+    archivoA = fopen("alquileres.dat", "rb");
+
+    if(archivoA == NULL){
+        printf("[Error] No se pudo abrir alquileres.dat\n");
+        return;
+    }
+
+    while(fread(&a, sizeof(alquiler), 1, archivoA) == 1){
+
+        totalAlquileres++;
+
+        if(a.estado == 1){
+            alquileresActivos++;
+        }
+
+        totalCobrado += a.importePagado;
+
+        totalPendiente += a.importeTotal - a.importePagado;
+    }
+
+    fclose(archivoA);
+
+    printf("\n===== ESTADISTICAS DE LA EMPRESA =====\n");
+
+    printf("Cantidad total de vehiculos: %d\n", totalVehiculos);
+    printf("Vehiculos disponibles: %d\n", disponibles);
+    printf("Vehiculos alquilados: %d\n", alquilados);
+
+    printf("Cantidad total de alquileres: %d\n", totalAlquileres);
+    printf("Cantidad de alquileres activos: %d\n", alquileresActivos);
+
+    printf("Importe total cobrado: $%.2f\n", totalCobrado);
+    printf("Importe total pendiente de cobro: $%.2f\n", totalPendiente);
+}
 

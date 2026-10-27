@@ -9,10 +9,11 @@ void alquileresPorVehiculo(void);
 
 void alquileresPorEstado(void);
 void alquileresPorImporte(void);
+void alquileresPorImporte(void);
 void pagosRealizados(void);
 void clientesConDeuda(void);
 void estadisticasEmpresa(void);
-
+void estadisticasEmpresa(void);
 
 void limpiarEntradaCR(void);
 
