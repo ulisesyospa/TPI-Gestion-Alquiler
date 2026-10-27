@@ -8,7 +8,7 @@ typedef struct{
 	int capacidad;
 	float precioPorDia;
 	int estado; //1- disponible 2- no disponible
-} vehiculo;
+}vehiculo;
 void menuVehiculos(void);
 void registrarVehiculo(void);
 int buscarVehiculo(char patente[]);

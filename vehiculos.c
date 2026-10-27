@@ -1,8 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
 #include "vehiculos.h"
+int esFormatoPatenteValido(char *patente) {
+    if (strlen(patente) != 7) {
+        return 0;
+    }
+    if (!isalpha(patente[0]) || !isalpha(patente[1])) {
+        return 0;
+    }
+    if (!isdigit(patente[2]) || !isdigit(patente[3]) || !isdigit(patente[4])) {
+        return 0;
+    }
+    if (!isalpha(patente[5]) || !isalpha(patente[6])) {
+        return 0;
+    }
+    return 1;
+}
 void menuVehiculos(void){
 	int opcion;
 	do{
@@ -49,15 +65,21 @@ void registrarVehiculo(void) {
     FILE *archivo;
     int resultado;
     int caracter;
+    int i;
     printf("\n--- REGISTRAR VEHICULO ---\n"); 
     getchar();
-    printf("Patente: ");
-    fgets(v.patente, sizeof(v.patente), stdin);
-    v.patente[strcspn(v.patente, "\n")] = '\0';
-    while (strlen(v.patente) < 6){
-        printf("Patente invalida. Ingrese nuevamente: ");
+    while (1) {
+        printf("Patente (Formato AA000AA): ");
         fgets(v.patente, sizeof(v.patente), stdin);
         v.patente[strcspn(v.patente, "\n")] = '\0';
+        for(i=0;v.patente[i];i++) {
+            v.patente[i] = toupper(v.patente[i]);
+        }
+        if (!esFormatoPatenteValido(v.patente)) {
+            printf("[Error] Formato invalido. Debe ingresar exactamente 2 letras, 3 numeros y 2 letras (Ej: AB123CD).\n");
+            continue;
+        }
+        break;
     }
     if(buscarVehiculo(v.patente) == 1) {
         printf("\nYa existe un vehiculo con esa patente.\n");
@@ -84,11 +106,11 @@ void registrarVehiculo(void) {
     caracter = getchar();
     while(resultado != 1 || v.anio < 1886 || v.anio > 2026 || (caracter != '\n' && caracter != EOF)){
         while(caracter != '\n' && caracter != EOF){
-            caracter= getchar();
+            caracter = getchar();
         }
         printf("Anio invalido. Ingrese un anio entre 1886 y 2026: ");
-        resultado= scanf("%d", &v.anio);
-        caracter= getchar();
+        resultado = scanf("%d", &v.anio);
+        caracter = getchar();
     }
     printf("Tipo de vehiculo: ");
     fgets(v.tipo, sizeof(v.tipo), stdin);
@@ -99,19 +121,19 @@ void registrarVehiculo(void) {
         v.tipo[strcspn(v.tipo, "\n")] = '\0';
     }   
     printf("Capacidad de pasajeros: ");
-    resultado= scanf("%d", &v.capacidad);
-    caracter= getchar();
+    resultado = scanf("%d", &v.capacidad);
+    caracter = getchar();
     while(resultado != 1 || v.capacidad <= 0 || (caracter != '\n' && caracter != EOF)){
         while(caracter != '\n' && caracter != EOF){
-            caracter= getchar();
+            caracter = getchar();
         }
         printf("Capacidad invalida. Ingrese un numero mayor que cero: ");
-        resultado= scanf("%d", &v.capacidad);
-        caracter= getchar();
+        resultado = scanf("%d", &v.capacidad);
+        caracter = getchar();
     }  
     printf("Precio por dia: ");
-    resultado= scanf("%f", &v.precioPorDia);
-    caracter= getchar();
+    resultado = scanf("%f", &v.precioPorDia);
+    caracter = getchar();
     while(resultado != 1 || v.precioPorDia <= 0 || (caracter != '\n' && caracter != EOF)){
         while(caracter != '\n' && caracter != EOF){
             caracter = getchar();
@@ -136,14 +158,14 @@ void registrarVehiculo(void) {
 int buscarVehiculo(char patente[]){
 	vehiculo v;
 	FILE *archivo;
-	int encontrado=0;	
-	archivo= fopen("vehiculos.dat", "rb");
-	if(archivo==NULL){
+	int encontrado = 0;	
+	archivo = fopen("vehiculos.dat", "rb");
+	if(archivo == NULL){
 		return 0;
 	}	
-	while(encontrado==0 && fread(&v, sizeof(vehiculo), 1, archivo)==1){
-		if(strcmp(v.patente, patente)==0){
-			encontrado=1;
+	while(encontrado == 0 && fread(&v, sizeof(vehiculo), 1, archivo) == 1){
+		if(strcmp(v.patente, patente) == 0){
+			encontrado = 1;
 		}
 	}		
 	fclose(archivo);
@@ -153,19 +175,20 @@ int mostrarVehiculo(void){
 	FILE *archivo = fopen("vehiculos.dat", "rb");
 	if(archivo == NULL){
 		printf("[Error] No se pudo abrir el archivo de vehiculos.\n");
-		return;
+		return 0;
 	}
 	vehiculo v;
 	int contador = 0;
 	printf("\n === LISTADO GENERAL DE VEHICULOS ===\n");
 	while(fread(&v, sizeof(vehiculo), 1, archivo) == 1){
 		printf("Patente: %s | Marca: %s | Modelo: %s | Ano: %d | Tipo: %s | Capacidad: %d | Precio/Dia: %.2f | Estado: %d\n", v.patente, v.marca, v.modelo, v.anio, v.tipo, v.capacidad, v.precioPorDia, v.estado);
-		contador = contador+ 1;
+		contador = contador + 1;
 	}
 	fclose(archivo);
 	if(contador == 0){
 		printf("No hay vehiculos registrados en el sistema.\n");
 	}
+    return 1;
 }
 int modificarVehiculo(void){
 	char patente[10];
@@ -175,7 +198,7 @@ int modificarVehiculo(void){
 	FILE *archivo = fopen("vehiculos.dat", "rb+");
 	if(archivo == NULL){
 		printf("[Error] No se pudo abrir el archivo de vehiculos.\n");
-		return;
+		return 0;
 	}
 	vehiculo v;
 	int encontrado = 0;
@@ -207,6 +230,7 @@ int modificarVehiculo(void){
 	if(!encontrado){
 		printf("[Error] No existe un vehiculo registrado con esa patente.\n");
 	}
+    return 1;
 }
 void volverAlMenuPrincipal(void){
 	printf("\nRegresando al menu principal...\n");
