@@ -42,8 +42,8 @@ void patenteValida(char *destino, int tamano, const char *mensaje) {
                 continue;
             }
             longitud = (int)strlen(buffer);
-            if (longitud < 6 || longitud > 8) {
-                printf("[Error] La patente debe tener entre 6 y 8 caracteres.\n\n");
+            if (longitud != 7) {
+                printf("[Error] La patente debe tener exactamente 7 caracteres.\n\n");
                 continue;
             }
             int esValido = 1;
