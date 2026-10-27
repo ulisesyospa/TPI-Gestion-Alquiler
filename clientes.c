@@ -1,8 +1,89 @@
 #include <stdio.h> 
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <time.h>
 #include "clientes.h"
+int esNombreValido(char *cadena) {
+    if (strlen(cadena) == 0) return 0;
+    int tieneLetra = 0;
+    int i;
+    for (i = 0; cadena[i] != '\0'; i++) {
+        unsigned char c = (unsigned char)cadena[i];
+        if (isalpha(c) || c == 'á' || c == 'é' || c == 'í' || c == 'ó' || c == 'ú' || 
+            c == 'Á' || c == 'É' || c == 'Í' || c == 'Ó' || c == 'Ú' || 
+            c == 'ñ' || c == 'Ñ' || c == 'ü' || c == 'Ü') {
+            tieneLetra = 1;
+        } else if (!isspace(c)) {
+            return 0;
+        }
+    }
+    return tieneLetra;
+}
+int esTelefonoValido(char *telefono) {
+    if (strlen(telefono) != 10) return 0;
+    int i;
+    int soloCeros = 1;
+    for (i = 0; i < 10; i++) {
+        if (!isdigit(telefono[i])) {
+            return 0;
+        }
+        if (telefono[i] != '0') {
+            soloCeros = 0;
+        }
+    }
+    if (soloCeros) return 0;
+    return 1;
+}
+int esDireccionValida(char *direccion) {
+    if (strlen(direccion) < 3) return 0;
+    int i;
+    int tieneLetra = 0;
+    int tieneNumero = 0;
+    for (i = 0; direccion[i] != '\0'; i++) {
+        unsigned char c = (unsigned char)direccion[i];
+        if (isalpha(c) || c == 'á' || c == 'é' || c == 'í' || c == 'ó' || c == 'ú' || 
+            c == 'Á' || c == 'É' || c == 'Í' || c == 'Ó' || c == 'Ú' || 
+            c == 'ñ' || c == 'Ñ' || c == 'ü' || c == 'Ü') {
+            tieneLetra = 1;
+        } else if (isdigit(c)) {
+            tieneNumero = 1;
+        } else if (!isspace(c) && c != '.' && c != '#' && c != '-' && c != ',') {
+            return 0;
+        }
+    }
+    return (tieneLetra && tieneNumero);
+}
+int esEmailValido(char *email) {
+    int len = strlen(email);
+    if (len < 6) return 0;
+    if (strchr(email, ' ') != NULL) return 0;
+    char *arroba = strchr(email, '@');
+    if (arroba == NULL || arroba == email || *(arroba + 1) == '\0') return 0;
+    if (strchr(arroba + 1, '@') != NULL) return 0;
+    char *punto = strrchr(arroba + 1, '.');
+    if (punto == NULL || punto == arroba + 1 || *(punto + 1) == '\0') return 0;
+    return 1;
+}
+int fechaValidaCliente(int dia, int mes, int anio){
+    struct tm fecha = {0};
+    fecha.tm_mday = dia;
+    fecha.tm_mon = mes - 1;
+    fecha.tm_year = anio - 1900;
+    struct tm copia = fecha;
+    time_t controlFecha = mktime(&copia);
+    if(controlFecha == -1 ||
+       copia.tm_mday != dia ||
+       copia.tm_mon != mes - 1 ||
+       copia.tm_year != anio - 1900){
+        return 0;
+    }
+    time_t tActual = time(NULL);
+    if (controlFecha > tActual) {
+        return 0;
+    }
+    return 1;
+}
 void menuClientes(void) { 
     int opcion; 
 	do {
@@ -19,13 +100,13 @@ void menuClientes(void) {
 	           registrarCliente(); 
 	           break; 
 	           case 2:
-			   consultarCliente();
+			   consultarCliente(); 
 	           break; 
 	           case 3:
 			   mostrarClientes(); 
 	           break; 
 	           case 4: 
-	           modificarCliente();
+	           modificarCliente(); 
 	           break; 
 	           case 0:
 	           return;
@@ -53,52 +134,56 @@ void registrarCliente(void){
 	printf("Apellido y Nombre: ");
 	fgets(c.apellidoNombre, 60, stdin);
 	c.apellidoNombre[strcspn(c.apellidoNombre, "\n")]='\0';
-	while(strcmp(c.apellidoNombre, "")==0){
-		printf("El apellido y nombre no pueden ser vacios. Ingrese nuevamente: ");
+	while(strcmp(c.apellidoNombre, "") == 0 || !esNombreValido(c.apellidoNombre)){
+		printf("Nombre invalido (no puede estar vacio ni contener solo numeros). Ingrese nuevamente: ");
 	    fgets(c.apellidoNombre, 60, stdin);
 	    c.apellidoNombre[strcspn(c.apellidoNombre, "\n")]='\0';
 	}
-	printf("Telefono: ");
+	printf("Telefono (10 digitos sin ceros consecutivos): ");
 	fgets(c.telefono, 20, stdin);
 	c.telefono[strcspn(c.telefono, "\n")]='\0';
-	while(strcmp(c.telefono, "")==0){
-		printf("El telefono no puede ser vacio. Ingrese nuevamente: ");
+	while(!esTelefonoValido(c.telefono)){
+		printf("Telefono invalido. Debe tener estrictamente 10 numeros y no ser todo ceros. Ingrese nuevamente: ");
 	    fgets(c.telefono, 20, stdin);
 	    c.telefono[strcspn(c.telefono, "\n")]='\0';
 	}
-	printf("Direccion: ");
+	printf("Direccion (ej: San Martin 123): ");
 	fgets(c.direccion, 100, stdin);
 	c.direccion[strcspn(c.direccion, "\n")]='\0';
-	while(strcmp(c.direccion, "")==0){
-		printf("La direccion no puede ser vacio. Ingrese nuevamente: ");
+	while(!esDireccionValida(c.direccion)){
+		printf("Direccion invalida (debe contener obligatoriamente letras y numeros, ej: Rivadavia 450). Ingrese nuevamente: ");
 	    fgets(c.direccion, 100, stdin);
 	    c.direccion[strcspn(c.direccion, "\n")]='\0';
 	}
 	printf("E-mail: ");
 	fgets(c.email, 60, stdin);
 	c.email[strcspn(c.email, "\n")]='\0';
-	while(strcmp(c.email, "")==0 || strchr(c.email, '@') == NULL){
-		printf("E-mail invalido. Ingrese nuevamente: ");
+	while(!esEmailValido(c.email)){
+		printf("E-mail invalido (formato correcto ej: usuario@dominio.com, sin espacios). Ingrese nuevamente: ");
 	    fgets(c.email, 60, stdin);
 	    c.email[strcspn(c.email, "\n")]='\0';
 	}	
-	printf("Fecha de alta (DD/MM/AAAA): ");
-	fgets(c.fechaAlta, 11, stdin);
-	c.fechaAlta[strcspn(c.fechaAlta, "\n")]='\0';
-	while(strlen(c.fechaAlta)!=10 || c.fechaAlta[2]!='/' || c.fechaAlta[5]!='/'){
-		printf("Formato invalido. Ingrese DD/MM/AAAA: ");
-		fgets(c.fechaAlta, 11, stdin);
-		c.fechaAlta[strcspn(c.fechaAlta, "\n")]='\0';	
-	}
+	int diaAlta, mesAlta, anioAlta;
+	do {
+		printf("Fecha de alta (DD/MM/AAAA): ");
+		if(scanf("%d/%d/%d", &diaAlta, &mesAlta, &anioAlta) != 3){
+			printf("Formato invalido. Use DD/MM/AAAA.\n");
+			fflush(stdin);
+			diaAlta = 0;
+		} else if(!fechaValidaCliente(diaAlta, mesAlta, anioAlta)){
+			printf("La fecha no existe, es invalida o es posterior a la fecha actual.\n");
+			diaAlta = 0;
+		}
+	} while(diaAlta == 0);
+	fflush(stdin);
+	sprintf(c.fechaAlta, "%02d/%02d/%d", diaAlta, mesAlta, anioAlta);
 	c.estado=1;
 	archivo= fopen("clientes.dat", "ab");
 	if(archivo==NULL){
-		
 		printf("\nError: el archivo no pudo ser abierto.");
 		return;
 	}
 	if(fwrite(&c, sizeof(cliente), 1, archivo) ==1 ){
-		
 		printf("\nCliente registrado correctamente.");	
 	}else 
 	    printf("\nError: no se pudo guardar el cliente.\n");
@@ -114,7 +199,7 @@ int buscarCliente(int dni) {
     while(fread(&c, sizeof(cliente), 1, archivo) == 1) {    	
         if (c.dni==dni) {        	
             fclose(archivo);
-            return 1;           
+            return 1;            
         }
     }
     fclose(archivo);
@@ -138,7 +223,6 @@ void consultarCliente(void){
     	return;
 	}	
 	while(encontrado == 0 && fread(&c, sizeof(cliente), 1, archivo) == 1){
-
         if(c.dni == dni){
             encontrado = 1;
 		}
@@ -156,7 +240,7 @@ void consultarCliente(void){
 		}else{
 			printf("Estado: Inactivo\n");
 		}
-	}else
+	}else 
 	    printf("\nNo se encontro un cliente con ese DNI.\n");		
 	fclose(archivo);
 }
@@ -171,7 +255,6 @@ void mostrarClientes(void){
 		return;
 	}	
 	while(fread(&c, sizeof(cliente), 1, archivo) == 1){
-		
 		printf("DNI: %d\n", c.dni);
 		printf("Apellido y Nombre: %s\n", c.apellidoNombre);
 		printf("Telefono: %s\n", c.telefono);
@@ -188,7 +271,7 @@ void mostrarClientes(void){
 	}	
 	if(contador==0){
 		printf("No hay clientes registrados.\n");
-	}else
+	}else 
 	    printf("Total de clientes: %d\n", contador);	
 	fclose(archivo);    
 }
@@ -238,7 +321,7 @@ void modificarCliente(void){
 	do{
 		printf("\n--- MODIFICAR CLIENTE ---\n");
 		printf("1. Modificar nombre y apellidos\n");
-		printf("2. Modificar Telefino\n");
+		printf("2. Modificar Telefono\n");
 		printf("3. Modificar Direccion\n");
 		printf("4. Modificar E-mail\n");
 		printf("5. Modificar Estado\n");
@@ -251,8 +334,8 @@ void modificarCliente(void){
 				printf("Ingrese el nuevo Nombre y Apellido: ");
 				fgets(c.apellidoNombre, 60, stdin);
 	            c.apellidoNombre[strcspn(c.apellidoNombre, "\n")]='\0';
-	            while(strcmp(c.apellidoNombre, "")==0){
-		            printf("El apellido y nombre no pueden ser vacios. Ingrese nuevamente: ");
+	            while(strcmp(c.apellidoNombre, "") == 0 || !esNombreValido(c.apellidoNombre)){
+		            printf("Nombre invalido (no puede estar vacio ni contener solo numeros). Ingrese nuevamente: ");
 	                fgets(c.apellidoNombre, 60, stdin);
 	                c.apellidoNombre[strcspn(c.apellidoNombre, "\n")]='\0';
 	            }
@@ -262,10 +345,10 @@ void modificarCliente(void){
 				printf("Ingrese el nuevo Telefono: ");
 				fgets(c.telefono, 20, stdin);
 	            c.telefono[strcspn(c.telefono, "\n")]='\0';
-	            while(strcmp(c.telefono, "")==0){
-		           printf("El telefono no puede ser vacio. Ingrese nuevamente: ");
-	               fgets(c.telefono, 20, stdin);
-	               c.telefono[strcspn(c.telefono, "\n")]='\0';
+	            while(!esTelefonoValido(c.telefono)){
+		            printf("Telefono invalido. Debe tener estrictamente 10 numeros y no ser todo ceros. Ingrese nuevamente: ");
+	                fgets(c.telefono, 20, stdin);
+	                c.telefono[strcspn(c.telefono, "\n")]='\0';
 	            }
 			break;			
 			case 3:
@@ -273,10 +356,10 @@ void modificarCliente(void){
 				printf("Ingrese la nueva Direccion: ");
 	            fgets(c.direccion, 100, stdin);
 	            c.direccion[strcspn(c.direccion, "\n")]='\0';
-	            while(strcmp(c.direccion, "")==0){
-		           printf("La direccion no puede ser vacio. Ingrese nuevamente: ");
-	               fgets(c.direccion, 100, stdin);
-	               c.direccion[strcspn(c.direccion, "\n")]='\0';
+	            while(!esDireccionValida(c.direccion)){
+		            printf("Direccion invalida (debe contener obligatoriamente letras y numeros). Ingrese nuevamente: ");
+	                fgets(c.direccion, 100, stdin);
+	                c.direccion[strcspn(c.direccion, "\n")]='\0';
 	            }
 			break;			
 			case 4:
@@ -284,10 +367,10 @@ void modificarCliente(void){
 				printf("Ingrese el nuevo E-mail: ");
 	            fgets(c.email, 60, stdin);
 	            c.email[strcspn(c.email, "\n")]='\0';
-	            while(strcmp(c.email, "")==0 || strchr(c.email, '@') == NULL){
-		           printf("E-mail invalido. Ingrese nuevamente: ");
-	               fgets(c.email, 60, stdin);
-	               c.email[strcspn(c.email, "\n")]='\0';
+	            while(!esEmailValido(c.email)){
+		            printf("E-mail invalido (formato correcto ej: usuario@dominio.com, sin espacios). Ingrese nuevamente: ");
+	                fgets(c.email, 60, stdin);
+	                c.email[strcspn(c.email, "\n")]='\0';
 	            }
 			break;			
 			case 5:
