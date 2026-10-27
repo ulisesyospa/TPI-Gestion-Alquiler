@@ -52,7 +52,7 @@ void registrarMovimiento(int nroAlquiler, int dniCliente, char patenteVehiculo[]
 	sprintf(nombreArchivoTxt, "movimientos_%d.txt", dniCliente);
 	FILE *fTxt = fopen(nombreArchivoTxt, "a");
 	if(fTxt != NULL){
-		fprintf(fTxt, "Movimiento Nro: %d | Alquiler: %d | Tipo: %s | Monto: %.2f | Fecha: %02d/%02d/%d | Patente: %s\n", nuevo.nroMovimiento, nuevo.nroAlquiler, nuevo.tipoMovimiento, nuevo.monto,
+		fprintf(fTxt, "\nMovimiento Nro: %d | Alquiler: %d | Tipo: %s | Monto: %.2f | Fecha: %02d/%02d/%d | Patente: %s\n", nuevo.nroMovimiento, nuevo.nroAlquiler, nuevo.tipoMovimiento, nuevo.monto,
                 nuevo.fec.dia, nuevo.fec.mes, nuevo.fec.anio, nuevo.patenteVehiculo);
                 fclose(fTxt);
 	}
@@ -66,7 +66,7 @@ void registrarPago(void){
 	scanf("%d", &nroAlq);
 	FILE *fAlq = fopen("alquileres.dat", "rb+");
 	if(fAlq == NULL){
-		printf("[Error] No se pudo abrir el archivo de alquileres.\n");
+		printf("\n[Error] No se pudo abrir el archivo de alquileres.\n");
 		return;
 	}
 	alquiler a;
@@ -80,21 +80,21 @@ void registrarPago(void){
 		}
 	}
 	if(!encontrado){
-		printf("[Error] Alquiler inexistente.\n");
+		printf("\n[Error] Alquiler inexistente.\n");
 		fclose(fAlq);
 		return;
 	}
 	float saldoPendiente = a.importeTotal - a.importePagado;
 	printf("Importe Total: $%.2f | Ya Pagado: $%.2f | Saldo Restante: $%.2f\n", a.importeTotal, a.importePagado, saldoPendiente);
 	if(saldoPendiente <= 0){
-		printf("[Aviso] Este alquiler ya se encuentra totalmente saldado.\n");
+		printf("\n[Aviso] Este alquiler ya se encuentra totalmente saldado.\n");
 		fclose(fAlq);
 		return;
 	}
 	printf("Ingrese monto a abonar: ");
 	scanf("%f", &montoPago);
 	if(montoPago <= 0 || montoPago > saldoPendiente){
-		printf("[Error] Monto invalido o superior al saldo pendiente.\n");
+		printf("\n[Error] Monto invalido o superior al saldo pendiente.\n");
 		fclose(fAlq);
 		return;
 	}
@@ -106,5 +106,5 @@ void registrarPago(void){
 	fflush(fAlq);
 	fclose(fAlq);
 	registrarMovimiento(a.nroAlquiler, a.dniCliente, a.patenteVehiculo, "Pago", montoPago, fecPago);
-	printf("[Exito] Pago de $%.2f registrado correctamente.\n", montoPago);
+	printf("\n[Exito] Pago de $%.2f registrado correctamente.\n", montoPago);
 }

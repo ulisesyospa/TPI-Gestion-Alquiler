@@ -34,7 +34,6 @@ int main(){
             break;
             case 5:
                 menuPagos();
-                printf("Modulo en desarrollo.\n");
             break;
             case 6:
                 menuConsultasyReportes();

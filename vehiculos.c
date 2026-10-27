@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 #include "vehiculos.h"
+
 void menuVehiculos(void){
 	int opcion;
 	do{

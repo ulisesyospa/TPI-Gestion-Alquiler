@@ -5,6 +5,89 @@
 #include <time.h>
 #include "alquileres.h"
 #include "vehiculos.h"
+#include "movimiento.h"
+
+int verificacionEntero(const char *mensaje) {
+char buffer[100];
+    char basura;
+    int numero;
+
+    while (1) {
+        printf("%s", mensaje);
+
+        if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+            
+            // Caso 1: El usuario solo apretó Enter 
+            if (buffer[0] == '\n' || buffer[0] == '\r') {
+                printf("[Aviso] No ingreso ningun dato. Por favor, ingrese un DNI.\n\n");
+                continue;
+            }
+
+            // Caso 2: revisa que el nro cargado no tenga caracteres
+            if (sscanf(buffer, " %d %c", &numero, &basura) == 1) {
+                if (numero > 0) {
+                    return numero;
+                } else {
+                    printf("[Error] El número debe ser un entero positivo mayor a 0.\n\n");
+                }
+            } else {
+                // Caso 3: Escribió letras, símbolos o un formato no válido
+                printf("[Error] Entrada inválida. Debe ingresar estrictamente un numero (sin letras ni espacios).\n\n");
+            }
+        }
+    }
+}
+void patenteValida(char *destino, int tamano, const char *mensaje) {
+	char buffer[100];
+	int i;
+	int longitud;
+
+    while (1) {
+        printf("%s", mensaje);
+
+        if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+
+            // 1 saca salto de linea
+            buffer[strcspn(buffer, "\n")] = '\0';
+
+            // 2 control de apretar enter sin cargar nada 
+            if (strlen(buffer) == 0) {
+                printf("[Aviso] No ingreso ningun dato. Por favor, ingrese la patente.\n\n");
+                continue;
+            }
+
+            // 3 valida la longitud de la patente (Podemos cambiar aun) 
+            longitud = (int)strlen(buffer);
+            if (longitud < 6 || longitud > 8) {
+                printf("[Error] La patente debe tener entre 6 y 8 caracteres.\n\n");
+                continue;
+            }
+
+            // 4 verifica que esten cargados numeros y letras (Alfanumérico) (las letras minusculas las pasa a mayusculas)
+            int esValido = 1;
+            for ( i = 0; i < longitud; i++) {
+                char c = buffer[i];
+
+                if (c >= 'a' && c <= 'z') {
+                    buffer[i] = c - 32; // Paso manual a mayuscula
+                } else if (!(c >= 'A' && c <= 'Z') && !(c >= '0' && c <= '9')) {
+                    esValido = 0; // tiene un simbolo o espacio invalido
+                    break;
+                }
+            }
+
+            if (!esValido) {
+                printf("[Error] La patente solo debe contener letras y numeros (sin espacios ni simbolos).\n\n");
+                continue;
+            }
+
+            // 5 se copia a la estructura 
+            strncpy(destino, buffer, tamano - 1);
+            destino[tamano - 1] = '\0';
+            break;
+        }
+    }
+}
 
 
 int fechaValida(int dia, int mes, int anio){
@@ -93,21 +176,21 @@ void menuAlquileres(void){
 
 
 void realizarAlquiler(void){
-    alquiler nuevo;
-
+	alquiler nuevo;
+ 
     printf("\n=== REALIZAR ALQUILER ===\n");
+    //limpiamos el \n de apretar enter por seleccionar el nro 
+    limpiarBuffer();
 
     /* NUMERO AUTOMATICO */
 
     nuevo.nroAlquiler = generarNumeroAlquiler();
 
     printf("Numero de alquiler asignado: %d\n", nuevo.nroAlquiler);
-
-    printf("Ingrese DNI del cliente: ");
-    scanf("%d", &nuevo.dniCliente);
-
-    printf("Ingrese patente del vehiculo: ");
-    scanf("%s", nuevo.patenteVehiculo);
+	
+	nuevo.dniCliente = verificacionEntero("Ingrese DNI del cliente: ");
+		
+	patenteValida(nuevo.patenteVehiculo, sizeof(nuevo.patenteVehiculo), "Ingrese patente del vehiculo: ");
 
     FILE *fVeh = fopen("vehiculos.dat", "rb+");
 
