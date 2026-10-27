@@ -43,7 +43,7 @@ void patenteValida(char *destino, int tamano, const char *mensaje) {
             }
             longitud = (int)strlen(buffer);
             if (longitud != 7) {
-                printf("[Error] La patente debe tener exactamente 7 caracteres.\n\n");
+                printf("[Error] La patente debe tener 7 caracteres (2 letras 3 numero 2 letras).\n\n");
                 continue;
             }
             int esValido = 1;
@@ -126,6 +126,7 @@ void menuAlquileres(void){
 }
 void realizarAlquiler(void){
     alquiler nuevo;
+    char bufferFecha[100];
     printf("\n=== REALIZAR ALQUILER ===\n");
     limpiarBuffer();
     nuevo.nroAlquiler = generarNumeroAlquiler();
@@ -165,47 +166,52 @@ void realizarAlquiler(void){
         return;
     }
     int fechasCorrectas = 0;
+    time_t tActual = time(NULL);
+    struct tm *infoActual = localtime(&tActual);
+    int anioActual = infoActual->tm_year + 1900;
     do{
         printf("Ingrese fecha de inicio (DD/MM/AAAA): ");
-        if(scanf("%d/%d/%d",
-                 &nuevo.fecInicio.dia,
-                 &nuevo.fecInicio.mes,
-                 &nuevo.fecInicio.anio) != 3){
+        if(fgets(bufferFecha, sizeof(bufferFecha), stdin) == NULL){
+            continue;
+        }
+        bufferFecha[strcspn(bufferFecha, "\n")] = '\0';
+        if(sscanf(bufferFecha, "%d/%d/%d", &nuevo.fecInicio.dia, &nuevo.fecInicio.mes, &nuevo.fecInicio.anio) != 3){
             printf("[Error] Formato invalido. Use DD/MM/AAAA.\n");
-            limpiarBuffer();
-        }else if(fechaValida(nuevo.fecInicio.dia,
-                           nuevo.fecInicio.mes,
-                           nuevo.fecInicio.anio) == 0){
+        }else if(fechaValida(nuevo.fecInicio.dia, nuevo.fecInicio.mes, nuevo.fecInicio.anio) == 0){
             printf("[Error] La fecha de inicio no existe.\n");
         }else{
-            printf("Ingrese fecha prevista de devolucion (DD/MM/AAAA): ");
-            if(scanf("%d/%d/%d",
-                     &nuevo.fecPrevitaDevolucion.dia,
-                     &nuevo.fecPrevitaDevolucion.mes,
-                     &nuevo.fecPrevitaDevolucion.anio) != 3){
-                printf("[Error] Formato invalido. Use DD/MM/AAAA.\n");
-                limpiarBuffer();
-            }else if(fechaValida(nuevo.fecPrevitaDevolucion.dia,
-                               nuevo.fecPrevitaDevolucion.mes,
-                               nuevo.fecPrevitaDevolucion.anio) == 0){
-                printf("[Error] La fecha de devolucion no existe.\n");
+            struct tm inicio = {0};
+            inicio.tm_mday = nuevo.fecInicio.dia;
+            inicio.tm_mon = nuevo.fecInicio.mes - 1;
+            inicio.tm_year = nuevo.fecInicio.anio - 1900;
+            time_t fechaInicio = mktime(&inicio);
+            
+            // Validar que la fecha de inicio no sea anterior al día de hoy ni exceda 1 año en el futuro
+            if(fechaInicio < (tActual - 86400)){ // Margen de seguridad de un día por zona horaria
+                printf("[Error] La fecha de inicio no puede ser anterior a la actual.\n");
+            }else if(nuevo.fecInicio.anio > anioActual + 1){
+                printf("[Error] No se puede registrar un alquiler con tanta anticipacion.\n");
             }else{
-                struct tm inicio = {0};
-                inicio.tm_mday = nuevo.fecInicio.dia;
-                inicio.tm_mon = nuevo.fecInicio.mes - 1;
-                inicio.tm_year = nuevo.fecInicio.anio - 1900;
-                struct tm devolucion = {0};
-                devolucion.tm_mday = nuevo.fecPrevitaDevolucion.dia;
-                devolucion.tm_mon = nuevo.fecPrevitaDevolucion.mes - 1;
-                devolucion.tm_year = nuevo.fecPrevitaDevolucion.anio - 1900;
-                time_t fechaInicio = mktime(&inicio);
-                time_t fechaDevolucion = mktime(&devolucion);
-                if(fechaInicio == -1 || fechaDevolucion == -1){
-                    printf("[Error] No se pudieron procesar las fechas.\n");
-                }else if(fechaDevolucion <= fechaInicio){
-                    printf("[Error] La devolucion debe ser posterior al inicio.\n");
+                printf("Ingrese fecha prevista de devolucion (DD/MM/AAAA): ");
+                if(fgets(bufferFecha, sizeof(bufferFecha), stdin) == NULL){
+                    continue;
+                }
+                bufferFecha[strcspn(bufferFecha, "\n")] = '\0';
+                if(sscanf(bufferFecha, "%d/%d/%d", &nuevo.fecPrevitaDevolucion.dia, &nuevo.fecPrevitaDevolucion.mes, &nuevo.fecPrevitaDevolucion.anio) != 3){
+                    printf("[Error] Formato invalido. Use DD/MM/AAAA.\n");
+                }else if(fechaValida(nuevo.fecPrevitaDevolucion.dia, nuevo.fecPrevitaDevolucion.mes, nuevo.fecPrevitaDevolucion.anio) == 0){
+                    printf("[Error] La fecha de devolucion no existe.\n");
                 }else{
-                    fechasCorrectas = 1;
+                    struct tm devolucion = {0};
+                    devolucion.tm_mday = nuevo.fecPrevitaDevolucion.dia;
+                    devolucion.tm_mon = nuevo.fecPrevitaDevolucion.mes - 1;
+                    devolucion.tm_year = nuevo.fecPrevitaDevolucion.anio - 1900;
+                    time_t fechaDevolucion = mktime(&devolucion);
+                    if(fechaDevolucion <= fechaInicio){
+                        printf("[Error] La devolucion debe ser posterior al inicio.\n");
+                    }else{
+                        fechasCorrectas = 1;
+                    }
                 }
             }
         }
@@ -223,6 +229,14 @@ void realizarAlquiler(void){
     nuevo.cantidadDias = (int)(difftime(fechaDevolucion, fechaInicio) / (60 * 60 * 24));
     printf("Cantidad de dias calculada: %d\n", nuevo.cantidadDias);
     nuevo.importeTotal = precioPorDia * nuevo.cantidadDias;
+    
+    // Validación de seguridad para el importe
+    if(nuevo.importeTotal <= 0){
+        printf("[Error] El importe total calculado no es valido (debe ser mayor a 0).\n");
+        fclose(fVeh);
+        return;
+    }
+    
     nuevo.importePagado = 0.0;
     nuevo.estado = 1;
     FILE *fAlq = fopen("alquileres.dat", "ab");

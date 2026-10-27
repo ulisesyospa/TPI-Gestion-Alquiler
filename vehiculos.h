@@ -1,6 +1,6 @@
 #pragma once 
 typedef struct{
-	char patente[10];
+	char patente[7];
 	char marca[30];
 	char modelo[30];
 	int anio;

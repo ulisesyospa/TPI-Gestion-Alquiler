@@ -6,7 +6,7 @@ typedef struct{
 	float monto;
 	fecha fec;
 	int dniCliente;
-	char patenteVehiculo[10];
+	char patenteVehiculo[7];
 }movimiento;
 void menuPagos(void);
 void registrarPago(void);
