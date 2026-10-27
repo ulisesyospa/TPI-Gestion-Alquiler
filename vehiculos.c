@@ -3,7 +3,6 @@
 #include <string.h>
 #include <time.h>
 #include "vehiculos.h"
-
 void menuVehiculos(void){
 	int opcion;
 	do{
@@ -83,9 +82,7 @@ void registrarVehiculo(void) {
     printf("Anio: ");
     resultado = scanf("%d", &v.anio);
     caracter = getchar();
-
     while(resultado != 1 || v.anio < 1886 || v.anio > 2026 || (caracter != '\n' && caracter != EOF)){
-
         while(caracter != '\n' && caracter != EOF){
             caracter= getchar();
         }
@@ -197,7 +194,7 @@ int modificarVehiculo(void){
 			scanf("%d", &v.capacidad);
 			printf("Nuevo Precio por dia (Actual: %.2f): ", v.precioPorDia);
 			scanf("%f", &v.precioPorDia);
-			printf("Nuevo estado 1. Disponible | 2. Aluilado | 3. Bajo Mantenimiento - (Actual: %d): ", v.estado);
+			printf("Nuevo estado 1. Disponible | 2. Alquilado | 3. Bajo Mantenimiento - (Actual: %d): ", v.estado);
 			scanf("%d", &v.estado);
 			fseek(archivo, posicionActual, SEEK_SET);
 			fwrite(&v, sizeof(vehiculo), 1, archivo);
@@ -214,21 +211,3 @@ int modificarVehiculo(void){
 void volverAlMenuPrincipal(void){
 	printf("\nRegresando al menu principal...\n");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,6 +1,7 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include "alquileres.h"
 #include "movimiento.h"
 void menuPagos(void){
@@ -52,7 +53,7 @@ void registrarMovimiento(int nroAlquiler, int dniCliente, char patenteVehiculo[]
 	sprintf(nombreArchivoTxt, "movimientos_%d.txt", dniCliente);
 	FILE *fTxt = fopen(nombreArchivoTxt, "a");
 	if(fTxt != NULL){
-		fprintf(fTxt, "\nMovimiento Nro: %d | Alquiler: %d | Tipo: %s | Monto: %.2f | Fecha: %02d/%02d/%d | Patente: %s\n", nuevo.nroMovimiento, nuevo.nroAlquiler, nuevo.tipoMovimiento, nuevo.monto,
+		fprintf(fTxt, "\Movimiento Nro: %d | Alquiler: %d | Tipo: %s | Monto: %.2f | Fecha: %02d/%02d/%d | Patente: %s\n", nuevo.nroMovimiento, nuevo.nroAlquiler, nuevo.tipoMovimiento, nuevo.monto,
                 nuevo.fec.dia, nuevo.fec.mes, nuevo.fec.anio, nuevo.patenteVehiculo);
                 fclose(fTxt);
 	}
@@ -91,15 +92,42 @@ void registrarPago(void){
 		fclose(fAlq);
 		return;
 	}
-	printf("Ingrese monto a abonar: ");
-	scanf("%f", &montoPago);
-	if(montoPago <= 0 || montoPago > saldoPendiente){
-		printf("\n[Error] Monto invalido o superior al saldo pendiente.\n");
-		fclose(fAlq);
-		return;
-	}
-	printf("Ingrese fecha del pago (AA/MM/AAAA): ");
-	scanf("%d/%d/%d", &fecPago.dia, &fecPago.mes, &fecPago.anio);
+	
+	// Bucle para validar que el monto a abonar sea correcto y no supere el saldo pendiente
+	do {
+		printf("Ingrese monto a abonar: ");
+		scanf("%f", &montoPago);
+		if(montoPago <= 0){
+			printf("\n[Error] El monto debe ser mayor a 0. Intente nuevamente.\n");
+		} else if(montoPago > saldoPendiente){
+			printf("\n[Error] El monto ingresado ($%.2f) supera el saldo pendiente ($%.2f). Debe abonar un monto valido.\n", montoPago, saldoPendiente);
+		}
+	} while(montoPago <= 0 || montoPago > saldoPendiente);
+
+	// Validación para evitar pagos con fechas anteriores al inicio del alquiler
+	int fechaValidaPago = 0;
+	do {
+		printf("Ingrese fecha del pago (DD/MM/AAAA): ");
+		scanf("%d/%d/%d", &fecPago.dia, &fecPago.mes, &fecPago.anio);
+		struct tm fInicio = {0};
+		fInicio.tm_mday = a.fecInicio.dia;
+		fInicio.tm_mon = a.fecInicio.mes - 1;
+		fInicio.tm_year = a.fecInicio.anio - 1900;
+		struct tm fPago = {0};
+		fPago.tm_mday = fecPago.dia;
+		fPago.tm_mon = fecPago.mes - 1;
+		fPago.tm_year = fecPago.anio - 1900;
+		time_t tInicio = mktime(&fInicio);
+		time_t tPago = mktime(&fPago);
+		if(tPago == -1){
+			printf("\n[Error] La fecha ingresada no existe o es invalida. Intente nuevamente.\n");
+		} else if(tPago < tInicio){
+			printf("\n[Error] La fecha del pago no puede ser anterior a la fecha de inicio del alquiler (%02d/%02d/%d).\n", 
+			       a.fecInicio.dia, a.fecInicio.mes, a.fecInicio.anio);
+		} else {
+			fechaValidaPago = 1;
+		}
+	} while(!fechaValidaPago);
 	a.importePagado = a.importePagado + montoPago;
 	fseek(fAlq, posAlquiler, SEEK_SET);
 	fwrite(&a, sizeof(alquiler), 1, fAlq);

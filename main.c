@@ -29,8 +29,7 @@ int main(){
                 menuAlquileres();
             break;
             case 4:
-                //menuDevoluciones();
-                printf("Modulo en desarrollo.\n");
+                menuDevoluciones();
             break;
             case 5:
                 menuPagos();
