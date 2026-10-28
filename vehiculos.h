@@ -15,3 +15,6 @@ int buscarVehiculo(char patente[]);
 void consultarVehiculo(void);
 void mostrarVehiculos(void);
 void modificarVehiculos(void);
+int esSoloTextoValido(const char *cadena);
+int esCadenaVaciaOEspacios(const char *cadena);
+int leerEnteroEnRango(int min, int max, const char *mensajeError);
