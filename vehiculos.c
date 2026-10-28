@@ -35,7 +35,7 @@ void menuVehiculos(void){
 				registrarVehiculo();
 			break;			
 			case 2: {
-				char patenteBusq[7];
+				char patenteBusq[10];
 				printf("Ingrese la patente a buscar: ");
 				scanf("%s", patenteBusq);
 				if(buscarVehiculo(patenteBusq)){
