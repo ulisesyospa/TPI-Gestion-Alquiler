@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "clientes.h"
 #include "vehiculos.h"
 #include "consultasReportes.h"
 int main(){
     int opcion;
+    char buffer[100];
+    char basura;
     do{
         printf("\n=====================================\n");
         printf("SISTEMA DE ALQUILER DE VEHICULOS\n");
@@ -16,8 +19,19 @@ int main(){
         printf("5.Pagos\n");
         printf("6.Consultas y Reportes\n");
         printf("0.Salir\n");
-        printf("\nSeleccione una opcion: ");
-        scanf("%d", &opcion);
+        printf("\nSeleccione una opcion: ");    
+        if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+            if (buffer[0] == '\n' || buffer[0] == '\r') {
+                printf("[Error] Debe ingresar una opcion valida.\n");
+                opcion = -1;
+                continue;
+            }
+            if (sscanf(buffer, " %d %c", &opcion, &basura) != 1) {
+                printf("[Error] Entrada invalida. Ingrese solo numeros.\n");
+                opcion = -1;
+                continue;
+            }
+        }      
         switch(opcion){
             case 1:
                 menuClientes();
@@ -41,29 +55,8 @@ int main(){
                 printf("Saliendo...\n");
             break;
             default:
-                printf("Opcion incorrecta.\n");
+                printf("Opcion incorrecta.\n");    
         }
     }while(opcion != 0);
     return 0;
-    int op;
-    do {
-        printf("\n--- CONSULTAS Y REPORTES ---\n");
-        printf("1. Vehículos Disponibles\n");
-        printf("2. Vehículos Alquilados\n");
-        printf("3. Alquileres por Cliente\n");
-        printf("4. Clientes con Deuda\n");
-        printf("5. Estadísticas de la Empresa\n");
-        printf("0. Volver al Menú Principal\n");
-        printf("Seleccione una opción: ");
-        scanf("%d", &op);
-        switch(op) {
-            case 1: mostrarVehiculosDisponibles(); break;
-            case 2: mostrarVehiculosAlquilados(); break;
-            case 3: mostrarAlquileresPorCliente(); break;
-            case 4: mostrarClientesConDeuda(); break;
-            case 5: mostrarEstadisticasEmpresa(); break;
-            case 0: break;
-            default: printf("[Error] Opción inválida.\n");
-        }
-    } while(op != 0);
 }
