@@ -32,8 +32,7 @@ int esTelefonoValido(char *telefono) {
             soloCeros = 0;
         }
     }
-    if (soloCeros) 
-	return 0;
+    if (soloCeros) return 0;
     return 1;
 }
 int esDireccionValida(char *direccion) {

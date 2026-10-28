@@ -24,7 +24,6 @@ void menuConsultasyReportes(void){
         printf("0. Volver al menu principal\n");
         printf("Seleccione una opcion: ");
         scanf("%d", &opcion);
-        limpiarEntradaCR();
         switch(opcion){
             case 1:
                 vehiculosDisponibles();
@@ -84,7 +83,7 @@ void vehiculosDisponibles(void){
 			printf("Tipo: %s\n", v.tipo);
 			printf("Capacidad: %d\n", v.capacidad);
 			printf("Precio por dia: $%.2f\n", v.precioPorDia);
-			printf("--------------------------\n");			
+			printf("--------------------------");			
 			contador=contador+1;
 		}
 	}	
@@ -184,41 +183,28 @@ int fechaValidaCR(int dia, int mes, int anio){
     }
     return 1;
 }
-int leerFechaCR(fecha *f){
+int leerFechaCR(fecha *f)
+{
     char texto[100];
     int i;
     printf("Ingrese la fecha (DD/MM/AAAA): ");
-    if(fgets(texto, sizeof(texto), stdin) == NULL){
+    if (scanf(" %99[^\n]", texto) != 1){
         return 0;
     }
-    /* Verificar si la entrada entra completa */
-    if(strchr(texto, '\n') == NULL){
-        limpiarEntradaCR();
+    limpiarEntradaCR();
+    if (strlen(texto) != 10 || texto[2] != '/' || texto[5] != '/'){
         return 0;
     }
-    texto[strcspn(texto, "\n")] = '\0';
-    /* Rechazar entrada vacia o incompleta */
-    if(strlen(texto) != 10){
-        return 0;
-    }
-    /* Verificar las barras */
-    if(texto[2] != '/' || texto[5] != '/'){
-        return 0;
-    }
-    /* Verificar que solo haya numeros y barras */
-    for(i = 0; i < 10; i++){
-        if(i != 2 && i != 5){
-            if(texto[i] < '0' || texto[i] > '9'){
+    for (i = 0; i < 10; i++){
+        if (i != 2 && i != 5){
+            if (texto[i] < '0' || texto[i] > '9'){
                 return 0;
             }
         }
     }
-    /* Convertir el texto a numeros */
-    if(sscanf(texto, "%2d/%2d/%4d",
-              &f->dia, &f->mes, &f->anio) != 3){
+    if (sscanf(texto, "%2d/%2d/%4d", &f->dia, &f->mes, &f->anio) != 3){
         return 0;
     }
-    /* Validar que la fecha exista */
     return fechaValidaCR(f->dia, f->mes, f->anio);
 }
 void limpiarEntradaCR(void){
@@ -232,7 +218,6 @@ void alquileresPorRangoFechas(void){
     fecha inicial, final;
     int encontrado = 0;
     printf("\n--- ALQUILERES POR RANGO DE FECHAS ---\n");
-   
     /* Ingresar fecha inicial */
     while (1){
         printf("\nFecha inicial:\n");
@@ -294,6 +279,7 @@ void alquileresPorCliente(void){
     int dni, i;
     int valido, existe, encontrado;
     printf("\n--- ALQUILERES POR CLIENTE ---\n");
+    limpiarEntradaCR();
     /* Ingresar y validar el DNI */
     while (1){
         printf("Ingrese el DNI del cliente: ");
@@ -306,12 +292,12 @@ void alquileresPorCliente(void){
                 valido = 0;
             }
         }
-        /* Verificar que tenga 8 digitos */
-        if (i < 8){
+        /* Verificar que tenga entre 7 y 8 digitos */
+        if (i < 7 || i > 8){
             valido = 0;
         }
         if (valido == 0){
-            printf("DNI incorrecto. Ingrese 8 digitos numericos.\n");
+            printf("DNI incorrecto. Ingrese entre 7 y 8 digitos numericos.\n");
         }
         else{
             dni = atoi(texto);
@@ -376,45 +362,31 @@ void alquileresPorVehiculo(void){
     char patenteAlquiler[10];
     int i, valido, existe, encontrado;
     printf("\n--- ALQUILERES POR VEHICULO ---\n");
-    
+    limpiarEntradaCR();
     /* Ingresar y validar la patente */
-    while(1){
-        printf("Ingrese la patente del vehiculo (AB123CD): ");
-        if(fgets(texto, sizeof(texto), stdin) == NULL){
-            printf("Error al leer la patente.\n");
-            return;
-        }
-        /* Verificar si la entrada entra completa */
-        if(strchr(texto, '\n') == NULL){
-            limpiarEntradaCR();
-            printf("Patente incorrecta. Intente nuevamente.\n");
-            continue;
-        }
+    while (1){
+        printf("Ingrese la patente del vehiculo: ");
+        fgets(texto, sizeof(texto), stdin);
         texto[strcspn(texto, "\n")] = '\0';
-        /* Rechazar patente vacia o con formato incorrecto */
-        if(strlen(texto) != 7){
-            printf("Patente incorrecta. Debe tener 2 letras, 3 numeros y 2 letras. Ejemplo: AB123CD.\n");
-            continue;
-        }
         valido = 1;
-        /* Convertir letras minusculas a mayusculas */
-        for(i = 0; texto[i] != '\0'; i++){
-            if(texto[i] >= 'a' && texto[i] <= 'z'){
+        /* Verificar que tenga 7 caracteres */
+        if (strlen(texto) != 7){
+            valido = 0;
+        }
+        /* Verificar que solo tenga letras y numeros */
+        for (i = 0; texto[i] != '\0'; i++){
+            if (!((texto[i] >= 'A' && texto[i] <= 'Z') ||
+                  (texto[i] >= 'a' && texto[i] <= 'z') ||
+                  (texto[i] >= '0' && texto[i] <= '9'))){
+                valido = 0;
+            }
+            /* Convertir las letras minusculas a mayusculas */
+            if (texto[i] >= 'a' && texto[i] <= 'z'){
                 texto[i] = texto[i] - 32;
             }
         }
-        /* Verificar 2 letras + 3 numeros + 2 letras */
-        if(!((texto[0] >= 'A' && texto[0] <= 'Z') &&
-             (texto[1] >= 'A' && texto[1] <= 'Z') &&
-             (texto[2] >= '0' && texto[2] <= '9') &&
-             (texto[3] >= '0' && texto[3] <= '9') &&
-             (texto[4] >= '0' && texto[4] <= '9') &&
-             (texto[5] >= 'A' && texto[5] <= 'Z') &&
-             (texto[6] >= 'A' && texto[6] <= 'Z'))){
-            valido = 0;
-        }
-        if(valido == 0){
-            printf("Patente incorrecta. Use el formato AB123CD.\n");
+        if (valido == 0){
+            printf("Patente incorrecta. Ingrese 7 caracteres alfanumericos.\n");
         }
         else{
             break;
@@ -487,59 +459,48 @@ void alquileresPorEstado(void){
     int estado;
     int contador;
     do{
-        contador = 0;
+        contador = 0; 
         printf("\n--- ALQUILERES POR ESTADO ---\n");
         printf("1. Activos\n");
         printf("2. Finalizados\n");
         printf("0. Cancelados\n");
         printf("9. Volver al menu de consultas y reportes\n");
-        while(1){
-            printf("Seleccione una opcion: ");
-            if(fgets(texto, sizeof(texto), stdin) == NULL){
+        while (1){
+            printf("Seleccione una opcion: "); 
+            if (scanf(" %99[^\n]", texto) != 1){
                 return;
-            }
-            /* Verificar si la entrada es demasiado larga */
-            if(strchr(texto, '\n') == NULL){
-                limpiarEntradaCR();
-                printf("Opcion incorrecta. Ingrese solamente 1, 2, 0 o 9.\n");
-                continue;
-            }
-            texto[strcspn(texto, "\n")] = '\0';
-            /* Validar que no este vacio y que sea una opcion permitida */
-            if(strlen(texto) == 1 &&
-               (texto[0] == '0' ||
-                texto[0] == '1' ||
-                texto[0] == '2' ||
-                texto[0] == '9')){
+            } 
+            limpiarEntradaCR(); 
+            // control para que solo se admita 1,2,0 o 9			 
+            if (strlen(texto) == 1 && (texto[0] == '0' || texto[0] == '1' || texto[0] == '2' || texto[0] == '9')){
                 estado = texto[0] - '0';
                 break;
             }
-            printf("Opcion incorrecta. Ingrese solamente 1, 2, 0 o 9.\n");
+            printf("Opcion incorrecta. Ingrese 1 (Activos), 2 (Finalizados), 0 (Cancelados) o 9 (Volver).\n");
         }
-        /* Si elige 9, vuelve al menu anterior */
-        if(estado != 9){
-            if(estado == 1){
+        //si detecta 9 no entra al while
+        if (estado != 9){ 
+            if (estado == 1){
                 strcpy(nombreEstado, "Activo");
             }
-            else if(estado == 2){
+            else if (estado == 2){
                 strcpy(nombreEstado, "Finalizado");
             }
             else{
                 strcpy(nombreEstado, "Cancelado");
             }
             archivo = fopen("alquileres.dat", "rb");
-            if(archivo == NULL){
+            if (archivo == NULL){
                 printf("No se pudo abrir el archivo de alquileres.\n");
                 return;
             }
             printf("\nAlquileres con estado %s:\n", nombreEstado);
-            /* Recorrer los alquileres */
-            while(fread(&a, sizeof(alquiler), 1, archivo) == 1){
-                if(a.estado == estado){
+            // Recorrer los alquileres y muestrar los que tienen ese estado 
+            while (fread(&a, sizeof(alquiler), 1, archivo) == 1){
+                if (a.estado == estado){
                     printf("\nNumero de alquiler: %d\n", a.nroAlquiler);
                     printf("DNI del cliente: %d\n", a.dniCliente);
                     printf("Patente del vehiculo: %s\n", a.patenteVehiculo);
-
                     printf("Fecha de inicio: %02d/%02d/%04d\n",
                            a.fecInicio.dia,
                            a.fecInicio.mes,
@@ -548,8 +509,8 @@ void alquileresPorEstado(void){
                            a.fecPrevitaDevolucion.dia,
                            a.fecPrevitaDevolucion.mes,
                            a.fecPrevitaDevolucion.anio);
-                    /* Mostrar fecha efectiva si esta finalizado */
-                    if(a.estado == 2){
+                    // entra solo cuando el vehiculo ya fue devuelto
+                    if (a.estado == 2){
                         printf("Fecha efectiva de devolucion: %02d/%02d/%04d\n",
                                a.fecEfectivaDevolucion.dia,
                                a.fecEfectivaDevolucion.mes,
@@ -559,88 +520,42 @@ void alquileresPorEstado(void){
                     printf("Importe total: $%.2f\n", a.importeTotal);
                     printf("Importe pagado: $%.2f\n", a.importePagado);
                     printf("Estado del alquiler: %s\n", nombreEstado);
-
                     contador++;
                 }
             }
-            if(contador == 0){
+            if (contador == 0){
                 printf("\nNo hay alquileres con estado %s.\n", nombreEstado);
             }
             else{
-                printf("\nTotal de alquileres con estado %s: %d\n",
-                       nombreEstado, contador);
-            }
+                printf("\nTotal de alquileres con estado %s: %d\n", nombreEstado, contador);
+            } 
             fclose(archivo);
         }
-    }while(estado != 9);
+    }while (estado != 9);
 }
 void alquileresPorImporte(void){
     FILE *archivo;
     alquiler a;
-    char texto[100];
     float importe;
     int opcion;
     int contador = 0;
-    int valido;
-    int i;
-    printf("\n=== ALQUILERES POR IMPORTE ===\n");
-    /* Ingresar y validar el importe */
-    while(1){
-        printf("Ingrese un importe: ");
-        if(fgets(texto, sizeof(texto), stdin) == NULL){
-            return;
-        }
-        if(strchr(texto, '\n') == NULL){
-            limpiarEntradaCR();
-            printf("Importe incorrecto.\n");
-            continue;
-        }
-        texto[strcspn(texto, "\n")] = '\0';
-        valido = 1;
-        for(i = 0; texto[i] != '\0'; i++){
-            if((texto[i] < '0' || texto[i] > '9') && texto[i] != '.'){
-                valido = 0;
-            }
-        }
-        if(i == 0 || valido == 0){
-            printf("Ingrese un importe numerico valido.\n");
-            continue;
-        }
-        importe = atof(texto);
-        if(importe < 0){
-            printf("El importe no puede ser negativo.\n");
-            continue;
-        }
-        break;
-    }
-    /* Ingresar y validar la opcion */
-    while(1){
-        printf("\n1. Alquileres superiores al importe\n");
-        printf("2. Alquileres inferiores al importe\n");
-        printf("Seleccione una opcion: ");
-        if(fgets(texto, sizeof(texto), stdin) == NULL){
-            return;
-        }
-        if(strchr(texto, '\n') == NULL){
-            limpiarEntradaCR();
-            printf("Opcion invalida. Ingrese 1 o 2.\n");
-            continue;
-        }
-        texto[strcspn(texto, "\n")] = '\0';
-        if(strlen(texto) == 1 &&
-           (texto[0] == '1' || texto[0] == '2')){
-            opcion = texto[0] - '0';
-            break;
-        }
-        printf("Opcion invalida. Ingrese 1 o 2.\n");
-    }
-    /* Abrir el archivo */
     archivo = fopen("alquileres.dat", "rb");
     if(archivo == NULL){
         printf("[Error] No se pudo abrir el archivo de alquileres.\n");
         return;
     }
-    /* Buscar los alquileres */
+    printf("\n=== ALQUILERES POR IMPORTE ===\n");
+    printf("Ingrese un importe: ");
+    scanf("%f", &importe);
+    printf("\n1. Alquileres superiores al importe\n");
+    printf("2. Alquileres inferiores al importe\n");
+    printf("Seleccione una opcion: ");
+    scanf("%d", &opcion);
+    if(opcion != 1 && opcion != 2){
+        printf("[Error] Opcion invalida.\n");
+        fclose(archivo);
+        return;
+    }
     while(fread(&a, sizeof(alquiler), 1, archivo) == 1){
         if((opcion == 1 && a.importeTotal > importe) ||
            (opcion == 2 && a.importeTotal < importe)){
@@ -656,38 +571,35 @@ void alquileresPorImporte(void){
     }
     fclose(archivo);
 }
-
-void pagosRealizados(void){
-    FILE *archivo;
+void pagosRealizados(void) {	
+	FILE *archivo;
     movimiento m;
     fecha inicial, final;
     int numInicial, numFinal, numPago;
     int contador = 0;
     printf("\n--- PAGOS REALIZADOS ---\n");
-    /* Ingresar fecha inicial */
-    while(1){
+    // se ingresa la primera fecha
+    while (1){
         printf("\nFecha inicial:\n");
-        if(leerFechaCR(&inicial) == 0){
+        if (leerFechaCR(&inicial) == 0){
             printf("Fecha incorrecta. Intente nuevamente.\n");
         }
         else{
             break;
         }
     }
-    numInicial = inicial.anio * 10000 +
-                 inicial.mes * 100 +
-                 inicial.dia;
-    /* Ingresar fecha final */
-    while(1){
-        printf("\nFecha final:\n");
-        if(leerFechaCR(&final) == 0){
+    // se convierte a un numero AAAAMMDD para poder compararlas 
+    numInicial = inicial.anio * 10000 + inicial.mes * 100 + inicial.dia;
+    // se ingresa la fecha final 
+    while (1){
+        printf("\nFecha final:\n"); 
+        if (leerFechaCR(&final) == 0){
             printf("Fecha incorrecta. Intente nuevamente.\n");
         }
-        else{
-            numFinal = final.anio * 10000 +
-                       final.mes * 100 +
-                       final.dia;
-            if(numFinal < numInicial){
+        else{       	
+        	// se convierte a un numero AAAAMMDD para poder compararlas 
+            numFinal = final.anio * 10000 + final.mes * 100 + final.dia;
+            if (numFinal < numInicial){
                 printf("La fecha final no puede ser anterior a la inicial.\n");
             }
             else{
@@ -695,35 +607,32 @@ void pagosRealizados(void){
             }
         }
     }
-    /* Abrir archivo de movimientos */
-    archivo = fopen("movimientos.dat", "rb");
-    if(archivo == NULL){
+    archivo = fopen("movimientos.dat", "rb"); 
+    if (archivo == NULL){
         printf("No se pudo abrir el archivo de movimientos o aun no hay pagos registrados.\n");
         return;
-    }
+    } 
     printf("\nPagos realizados entre %02d/%02d/%04d y %02d/%02d/%04d:\n",
            inicial.dia, inicial.mes, inicial.anio,
-           final.dia, final.mes, final.anio);
-    /* Recorrer los movimientos */
-    while(fread(&m, sizeof(movimiento), 1, archivo) == 1){
-        numPago = m.fec.anio * 10000 +
-                  m.fec.mes * 100 +
-                  m.fec.dia;
-        if(strcmp(m.tipoMovimiento, "Pago") == 0 &&
-           numPago >= numInicial && numPago <= numFinal){
+           final.dia, final.mes, final.anio); 
+    // Recorre los movimientos y mmuestra solo los pagos dentro del periodo    
+    while (fread(&m, sizeof(movimiento), 1, archivo) == 1){
+        numPago = m.fec.anio * 10000 + m.fec.mes * 100 + m.fec.dia;
+        if (strcmp(m.tipoMovimiento, "Pago") == 0 && numPago >= numInicial && numPago <= numFinal){
             printf("\nNumero de movimiento: %d\n", m.nroMovimiento);
             printf("Numero de alquiler: %d\n", m.nroAlquiler);
             printf("DNI del cliente: %d\n", m.dniCliente);
             printf("Patente del vehiculo: %s\n", m.patenteVehiculo);
+ 
             printf("Fecha del pago: %02d/%02d/%04d\n",
-                   m.fec.dia, 
-				   m.fec.mes, 
-				   m.fec.anio);
+                   m.fec.dia,
+                   m.fec.mes,
+                   m.fec.anio);
             printf("Monto: $%.2f\n", m.monto);
             contador++;
         }
     }
-    if(contador == 0){
+    if (contador == 0){
         printf("\nNo se encontraron pagos en ese periodo.\n");
     }
     else{
