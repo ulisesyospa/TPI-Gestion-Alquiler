@@ -20,3 +20,4 @@ void listarAlquileres(void);
 int verificacionEntero(const char *mensaje);
 void patenteValida(char *destino, int tamano, const char *mensaje);
 int buscarCliente(int dni);
+int fechaValida(int dia, int mes, int anio);
