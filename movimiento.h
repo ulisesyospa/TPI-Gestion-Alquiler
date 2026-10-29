@@ -1,4 +1,5 @@
 #pragma once 
+#include "alquileres.h" 
 typedef struct{
 	int nroMovimiento;
 	int nroAlquiler;
@@ -10,4 +11,5 @@ typedef struct{
 }movimiento;
 void menuPagos(void);
 void registrarPago(void);
-void registrarMovimiento(int nroAlquiler, int dniCliente, char patenteVehiculo[], char tipo[], float monto, fecha fec);
+int registrarMovimiento(int nroAlquiler, int dniCliente, char patenteVehiculo[], char tipo[], float monto, fecha fec);
+static int leerEnteroPositivo(const char *mensaje);

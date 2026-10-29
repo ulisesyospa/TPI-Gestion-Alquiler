@@ -32,7 +32,8 @@ int esTelefonoValido(char *telefono) {
             soloCeros = 0;
         }
     }
-    if (soloCeros) return 0;
+    if (soloCeros) 
+	return 0;
     return 1;
 }
 int esDireccionValida(char *direccion) {
@@ -78,23 +79,50 @@ int fechaValidaCliente(int dia, int mes, int anio){
        copia.tm_year != anio - 1900){
         return 0;
     }
+    
+    // Obtener la fecha actual del sistema normalizada a medianoche para comparar días exactos
     time_t tActual = time(NULL);
-    if (controlFecha > tActual) {
+    struct tm *infoActual = localtime(&tActual);
+    infoActual->tm_hour = 0;
+    infoActual->tm_min = 0;
+    infoActual->tm_sec = 0;
+    time_t tActualSinHora = mktime(infoActual);
+    
+    struct tm *infoIngresada = localtime(&controlFecha);
+    infoIngresada->tm_hour = 0;
+    infoIngresada->tm_min = 0;
+    infoIngresada->tm_sec = 0;
+    time_t tIngresadaSinHora = mktime(infoIngresada);
+
+    // Valida que la fecha de alta sea estrictamente el día de hoy (no anterior ni futura)
+    if (tIngresadaSinHora != tActualSinHora) {
         return 0;
     }
     return 1;
 }
 void menuClientes(void) { 
     int opcion; 
+    char buffer[100];
+    char basura;
 	do {
-	     printf("\n=== MENU CLIENTES ===\n"); 
+	     printf("\n================================= MENU CLIENTES =================================\n"); 
 	     printf("1. Registrar cliente\n"); 
 	     printf("2. Buscar cliente\n"); 
 	     printf("3. Mostrar clientes\n"); 
 	     printf("4. Modificar cliente\n"); 
 	     printf("0. Volver al menu principal\n"); 
 	     printf("Seleccione una opcion: "); 
-	     scanf("%d", &opcion); 
+         if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+             if (buffer[0] == '\n' || buffer[0] == '\r') {
+                 opcion = -1;
+                 continue;
+             }
+             if (sscanf(buffer, " %d %c", &opcion, &basura) != 1) {
+                 printf("[Error] Entrada invalida. Ingrese solo numeros.\n");
+                 opcion = -1;
+                 continue;
+             }
+         }
 	        switch (opcion) { 
 	           case 1: 
 	           registrarCliente(); 
@@ -116,17 +144,24 @@ void menuClientes(void) {
        }while(opcion != 0);
 }
 void registrarCliente(void){	
-	int resultado;
-	int caracter;	
 	cliente c;
 	FILE *archivo;
-	printf("\n--- REGISTRAR CLIENTE ---\n");	
+    char buffer[100];
+    char basura;
+	printf("\n--------------------------------- REGISTRAR CLIENTE ---------------------------------\n");	
 	printf("DNI: ");
-	while (scanf("%d", &c.dni) != 1 || c.dni < 10000000 || c.dni > 99999999) {
-        printf("DNI invalido. Debe tener exactamente 8 caracteres (numeros). Ingrese nuevamente: ");
-        fflush(stdin);
-    }
-    fflush(stdin);   
+	while (1) {
+        if (fgets(buffer, sizeof(buffer), stdin) == NULL) continue;
+        buffer[strcspn(buffer, "\n")] = '\0';
+        if (buffer[0] == '\0') {
+            printf("[Aviso] No ingreso ningun dato. Ingrese DNI: ");
+            continue;
+        }
+        if (sscanf(buffer, " %d %c", &c.dni, &basura) == 1 && c.dni >= 10000000 && c.dni <= 99999999) {
+            break;
+        }
+        printf("DNI invalido. Debe tener exactamente 8 caracteres numericos. Ingrese nuevamente: ");
+    }   
 	if (buscarCliente(c.dni) == 1) {
         printf("\nYa existe un cliente con ese DNI.\n");
         return;
@@ -164,18 +199,27 @@ void registrarCliente(void){
 	    c.email[strcspn(c.email, "\n")]='\0';
 	}	
 	int diaAlta, mesAlta, anioAlta;
+    char bufferFecha[100];
 	do {
-		printf("Fecha de alta (DD/MM/AAAA): ");
-		if(scanf("%d/%d/%d", &diaAlta, &mesAlta, &anioAlta) != 3){
+		printf("Fecha de alta (DD/MM/AAAA - Debe ser la fecha de hoy): ");
+        if (fgets(bufferFecha, sizeof(bufferFecha), stdin) == NULL) {
+            diaAlta = 0;
+            continue;
+        }
+        bufferFecha[strcspn(bufferFecha, "\n")] = '\0';
+        if (bufferFecha[0] == '\0') {
+            printf("[Aviso] No ingreso ningun dato.\n");
+            diaAlta = 0;
+            continue;
+        }
+		if(sscanf(bufferFecha, "%d/%d/%d", &diaAlta, &mesAlta, &anioAlta) != 3){
 			printf("Formato invalido. Use DD/MM/AAAA.\n");
-			fflush(stdin);
 			diaAlta = 0;
 		} else if(!fechaValidaCliente(diaAlta, mesAlta, anioAlta)){
-			printf("La fecha no existe, es invalida o es posterior a la fecha actual.\n");
+			printf("La fecha de alta debe ser estrictamente la fecha actual del sistema.\n");
 			diaAlta = 0;
 		}
 	} while(diaAlta == 0);
-	fflush(stdin);
 	sprintf(c.fechaAlta, "%02d/%02d/%d", diaAlta, mesAlta, anioAlta);
 	c.estado=1;
 	archivo= fopen("clientes.dat", "ab");
@@ -209,14 +253,23 @@ void consultarCliente(void){
 	cliente c;
 	FILE *archivo;
 	int dni;
-	int encontrado=0;	
-	printf("\n--- BUSCAR CLIENTE ---\n");
-	printf("Ingrese del DNI: ");
-	while (scanf("%d", &dni) != 1 || dni <= 0) {
+	int encontrado=0;
+    char buffer[100];
+    char basura;	
+	printf("\n--------------------------------- BUSCAR CLIENTE ---------------------------------\n");
+	printf("Ingrese el DNI: ");
+	while (1) {
+        if (fgets(buffer, sizeof(buffer), stdin) == NULL) continue;
+        buffer[strcspn(buffer, "\n")] = '\0';
+        if (buffer[0] == '\0') {
+            printf("[Aviso] No ingreso ningun dato. Ingrese DNI: ");
+            continue;
+        }
+        if (sscanf(buffer, " %d %c", &dni, &basura) == 1 && dni > 0) {
+            break;
+        }
         printf("DNI invalido. Ingrese un numero mayor que cero: ");
-        fflush(stdin);
     }
-    fflush(stdin);
     archivo= fopen("clientes.dat", "rb");
     if(archivo==NULL){
     	printf("No se pudo abrir el archivo de clientes.\n");
@@ -248,7 +301,7 @@ void mostrarClientes(void){
 	cliente c;
 	FILE *archivo;
 	int contador=0;	
-	printf("\n--- LISTADO DE CLIENTES ---\n");	
+	printf("\n--------------------------------- LISTADO DE CLIENTES ---------------------------------\n");	
 	archivo= fopen("clientes.dat", "rb");
 	if(archivo==NULL){
 		printf("No se pudo abrir el archivo de clientes.\n");
@@ -266,7 +319,7 @@ void mostrarClientes(void){
 		}else{
 			printf("Estado: Inactivo\n");
 		}		
-		printf("-----------------------\n");
+		printf("-----------------------------------------------------------------------------------------\n");
 		contador++;
 	}	
 	if(contador==0){
@@ -282,15 +335,22 @@ void modificarCliente(void){
 	int encontrado=0;
 	int opcion;
 	long posicion;
-	int resultado;
-	int caracter;	
-	printf("\n--- MODIFICAR CLIENTE ---\n");
+    char buffer[100];
+    char basura;	
+	printf("\n--------------------------------- MODIFICAR CLIENTE ---------------------------------\n");
 	printf("Ingrese el DNI del cliente: ");	
-	while(scanf("%d", &dni) !=1 || dni <=0 ){
-		printf("DNI invalido. Ingrese un numero mayor que cero: ");
-		fflush(stdin);
-	}
-	fflush(stdin);	
+	while(1) {
+        if (fgets(buffer, sizeof(buffer), stdin) == NULL) continue;
+        buffer[strcspn(buffer, "\n")] = '\0';
+        if (buffer[0] == '\0') {
+            printf("[Aviso] No ingreso ningun dato. Ingrese DNI: ");
+            continue;
+        }
+        if (sscanf(buffer, " %d %c", &dni, &basura) == 1 && dni > 0) {
+            break;
+        }
+        printf("DNI invalido. Ingrese un numero mayor que cero: ");
+    }	
 	archivo= fopen("clientes.dat", "r+b");
 	if(archivo==NULL){
 		printf("No se pudo abrir el archivo de cliente.\n");
@@ -307,7 +367,7 @@ void modificarCliente(void){
 		fclose(archivo);
 		return;
 	}	
-	printf("\n--- DATOS DEL CLIENTE ---\n");
+	printf("\n--------------------------------- DATOS DEL CLIENTE ---------------------------------\n");
 	printf("DNI: %d\n", c.dni);
 	printf("Nombre y Apellido: %s\n", c.apellidoNombre);
 	printf("Telefono: %s\n", c.telefono);
@@ -319,7 +379,7 @@ void modificarCliente(void){
 	}else 
 	    printf("Estado: Inactivo");	
 	do{
-		printf("\n--- MODIFICAR CLIENTE ---\n");
+		printf("\n--------------------------------- MODIFICAR CLIENTE ---------------------------------\n");
 		printf("1. Modificar nombre y apellidos\n");
 		printf("2. Modificar Telefono\n");
 		printf("3. Modificar Direccion\n");
@@ -327,10 +387,19 @@ void modificarCliente(void){
 		printf("5. Modificar Estado\n");
 		printf("0. Guardar y volver\n");
 		printf("Seleccione una opcion: ");
-		scanf("%d", &opcion);
+        if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+            if (buffer[0] == '\n' || buffer[0] == '\r') {
+                opcion = -1;
+                continue;
+            }
+            if (sscanf(buffer, " %d %c", &opcion, &basura) != 1) {
+                printf("[Error] Entrada invalida. Ingrese solo numeros.\n");
+                opcion = -1;
+                continue;
+            }
+        }
 		switch(opcion){			
 			case 1:
-				getchar();
 				printf("Ingrese el nuevo Nombre y Apellido: ");
 				fgets(c.apellidoNombre, 60, stdin);
 	            c.apellidoNombre[strcspn(c.apellidoNombre, "\n")]='\0';
@@ -341,7 +410,6 @@ void modificarCliente(void){
 	            }
 			break;			
 			case 2:
-				getchar(); 
 				printf("Ingrese el nuevo Telefono: ");
 				fgets(c.telefono, 20, stdin);
 	            c.telefono[strcspn(c.telefono, "\n")]='\0';
@@ -352,7 +420,6 @@ void modificarCliente(void){
 	            }
 			break;			
 			case 3:
-				getchar();
 				printf("Ingrese la nueva Direccion: ");
 	            fgets(c.direccion, 100, stdin);
 	            c.direccion[strcspn(c.direccion, "\n")]='\0';
@@ -363,7 +430,6 @@ void modificarCliente(void){
 	            }
 			break;			
 			case 4:
-				getchar();
 				printf("Ingrese el nuevo E-mail: ");
 	            fgets(c.email, 60, stdin);
 	            c.email[strcspn(c.email, "\n")]='\0';
@@ -375,15 +441,13 @@ void modificarCliente(void){
 			break;			
 			case 5:
 				printf("Estado (1=Activo, 0=Inactivo): ");
-	            resultado=scanf("%d", &c.estado);
-	            caracter=getchar();
-	            while (resultado!=1 || (c.estado!=0 && c.estado!=1) || (caracter!='\n' && caracter!=EOF)) {
-                    fflush(stdin);
-		            printf("Estado invalido. Ingrese 1(Activo) o 0(Inactivo): ");
-                    resultado=scanf("%d", &c.estado);
-	                caracter=getchar();
+                if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+                    buffer[strcspn(buffer, "\n")] = '\0';
+                    if (sscanf(buffer, " %d %c", &c.estado, &basura) == 1 && (c.estado == 0 || c.estado == 1)) {
+                        break;
+                    }
                 }
-                fflush(stdin);
+                printf("Estado invalido. Ingrese 1 (Activo) o 0 (Inactivo).\n");
 			break;			
 			case 0:
 				if(fseek(archivo, posicion, SEEK_SET) == 0){
