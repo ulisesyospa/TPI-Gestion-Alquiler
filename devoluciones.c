@@ -12,7 +12,7 @@ void menuDevoluciones(void) {
     char buffer[100];
     char basura;
     do {
-        printf("\n=== MENU DEVOLUCIONES ===\n");
+        printf("\n================================= MENU DEVOLUCIONES =================================\n");
         printf("1. Registrar devolucion\n");
         printf("0. Volver al menu principal\n");
         printf("Seleccione una opcion: ");
@@ -60,7 +60,7 @@ void registrarDevolucion(void) {
     char bufferFecha[100];
     char bufferMonto[100];
     char basura;
-    printf("\n=== REGISTRAR DEVOLUCION ===\n");
+    printf("\n================================= REGISTRAR DEVOLUCION =================================\n");
     
     // Listar alquileres activos para que el usuario elija visualmente
     FILE *fAlq = fopen("alquileres.dat", "rb+");
@@ -70,7 +70,7 @@ void registrarDevolucion(void) {
     }   
     alquiler a;
     int contadorActivos = 0;
-    printf("\n--- ALQUILERES ACTIVOS ---\n");
+    printf("\n--------------------------------- ALQUILERES ACTIVOS ---------------------------------\n");
     while (fread(&a, sizeof(alquiler), 1, fAlq) == 1) {
         if (a.estado == 1) {
             printf("Nro Alquiler: %d | DNI: %d | Patente: %s | Inicio: %02d/%02d/%d\n",
@@ -84,7 +84,7 @@ void registrarDevolucion(void) {
         fclose(fAlq);
         return;
     }
-    printf("----------------------------\n");
+    printf("-----------------------------------------------------------------------------------------\n");
     printf("Ingrese numero de alquiler activo: ");
     if (fgets(bufferFecha, sizeof(bufferFecha), stdin) != NULL) {
         bufferFecha[strcspn(bufferFecha, "\n")] = '\0';
@@ -171,7 +171,7 @@ void registrarDevolucion(void) {
         // Mensaje orientativo de recargo por atraso si aplica
     }
 
-    printf("\n--- LIQUIDACION FINAL DE ALQUILER ---\n");
+    printf("\n--------------------------------- LIQUIDACION FINAL DE ALQUILER ---------------------------------\n");
     printf("Dias reales utilizados: %d\n", diasReales);
     printf("Importe Total a Pagar por el uso: $%.2f\n", a.importeTotal);
     

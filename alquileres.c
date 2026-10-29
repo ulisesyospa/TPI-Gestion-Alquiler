@@ -42,8 +42,8 @@ void patenteValida(char *destino, int tamano, const char *mensaje) {
                 continue;
             }
             longitud = (int)strlen(buffer);
-            if (longitud < 6 || longitud > 8) {
-                printf("[Error] La patente debe tener entre 6 y 8 caracteres.\n\n");
+            if (longitud != 7) {
+                printf("[Error] La patente debe tener 7 caracteres.\n\n");
                 continue;
             }
             int esValido = 1;
@@ -105,7 +105,7 @@ void menuAlquileres(void){
     char buffer[100];
     char basura;
     do{
-        printf("\n=== MENU ALQUILERES ===\n");
+        printf("\n================================= MENU ALQUILERES =================================\n");
         printf("1. Realizar alquiler\n");
         printf("2. Listar alquileres\n");
         printf("0. Volver al menu principal\n");
@@ -140,7 +140,7 @@ void realizarAlquiler(void){
     alquiler nuevo;
     char bufferFecha[100];
     char basuraFecha;
-    printf("\n=== REALIZAR ALQUILER ===\n");
+    printf("\n================================= REALIZAR ALQUILER =================================\n");
     nuevo.nroAlquiler = generarNumeroAlquiler();
     printf("Numero de alquiler asignado: %d\n", nuevo.nroAlquiler);
     nuevo.dniCliente = verificacionEntero("Ingrese DNI del cliente: ");
@@ -301,7 +301,7 @@ void listarAlquileres(void){
     }
     alquiler a;
     int contador = 0;
-    printf("\n=== LISTADO DE ALQUILERES ===\n");
+    printf("\n================================= LISTADO DE ALQUILERES =================================\n");
     while(fread(&a, sizeof(alquiler), 1, archivo) == 1){
         printf("\nNro Alquiler: %d | DNI Cliente: %d | Patente: %s\n",
                a.nroAlquiler, a.dniCliente, a.patenteVehiculo);

@@ -90,7 +90,7 @@ void menuClientes(void) {
     char buffer[100];
     char basura;
 	do {
-	     printf("\n=== MENU CLIENTES ===\n"); 
+	     printf("\n================================= MENU CLIENTES =================================\n"); 
 	     printf("1. Registrar cliente\n"); 
 	     printf("2. Buscar cliente\n"); 
 	     printf("3. Mostrar clientes\n"); 
@@ -133,7 +133,7 @@ void registrarCliente(void){
 	FILE *archivo;
     char buffer[100];
     char basura;
-	printf("\n--- REGISTRAR CLIENTE ---\n");	
+	printf("\n--------------------------------- REGISTRAR CLIENTE ---------------------------------\n");	
 	printf("DNI: ");
 	while (1) {
         if (fgets(buffer, sizeof(buffer), stdin) == NULL) continue;
@@ -241,7 +241,7 @@ void consultarCliente(void){
 	int encontrado=0;
     char buffer[100];
     char basura;	
-	printf("\n--- BUSCAR CLIENTE ---\n");
+	printf("\n--------------------------------- BUSCAR CLIENTE ---------------------------------\n");
 	printf("Ingrese el DNI: ");
 	while (1) {
         if (fgets(buffer, sizeof(buffer), stdin) == NULL) continue;
@@ -286,7 +286,7 @@ void mostrarClientes(void){
 	cliente c;
 	FILE *archivo;
 	int contador=0;	
-	printf("\n--- LISTADO DE CLIENTES ---\n");	
+	printf("\n--------------------------------- LISTADO DE CLIENTES ---------------------------------\n");	
 	archivo= fopen("clientes.dat", "rb");
 	if(archivo==NULL){
 		printf("No se pudo abrir el archivo de clientes.\n");
@@ -304,7 +304,7 @@ void mostrarClientes(void){
 		}else{
 			printf("Estado: Inactivo\n");
 		}		
-		printf("-----------------------\n");
+		printf("-----------------------------------------------------------------------------------------\n");
 		contador++;
 	}	
 	if(contador==0){
@@ -324,7 +324,7 @@ void modificarCliente(void){
 	int caracter;
     char buffer[100];
     char basura;	
-	printf("\n--- MODIFICAR CLIENTE ---\n");
+	printf("\n--------------------------------- MODIFICAR CLIENTE ---------------------------------\n");
 	printf("Ingrese el DNI del cliente: ");	
 	while(1) {
         if (fgets(buffer, sizeof(buffer), stdin) == NULL) continue;
@@ -354,7 +354,7 @@ void modificarCliente(void){
 		fclose(archivo);
 		return;
 	}	
-	printf("\n--- DATOS DEL CLIENTE ---\n");
+	printf("\n--------------------------------- DATOS DEL CLIENTE ---------------------------------\n");
 	printf("DNI: %d\n", c.dni);
 	printf("Nombre y Apellido: %s\n", c.apellidoNombre);
 	printf("Telefono: %s\n", c.telefono);
@@ -366,7 +366,7 @@ void modificarCliente(void){
 	}else 
 	    printf("Estado: Inactivo");	
 	do{
-		printf("\n--- MODIFICAR CLIENTE ---\n");
+		printf("\n--------------------------------- MODIFICAR CLIENTE ---------------------------------\n");
 		printf("1. Modificar nombre y apellidos\n");
 		printf("2. Modificar Telefono\n");
 		printf("3. Modificar Direccion\n");

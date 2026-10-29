@@ -32,7 +32,7 @@ void menuPagos(void){
 	char buffer[100];
 	char basura;
 	do{
-		printf("\n=== MENU PAGOS Y MOVIMIENTOS ===\n");
+		printf("\================================= MENU PAGOS Y MOVIMIENTOS =================================\n");
 		printf("1. Registrar pago\n");
 		printf("0. Volver al menu principal\n");
 		printf("Seleccione una opcion: ");
@@ -117,7 +117,7 @@ void registrarPago(void){
 	int nroAlq;
 	float montoPago;
 	fecha fecPago;
-	printf("\n=== REGISTRAR PAGO ===\n");
+	printf("\n================================= REGISTRAR PAGO =================================\n");
 	FILE *fAlq = fopen("alquileres.dat", "rb+");
 	if(fAlq == NULL){
 		printf("\n[Error] No se pudo abrir el archivo de alquileres.\n");
@@ -125,7 +125,7 @@ void registrarPago(void){
 	}
 	alquiler a;
 	int contadorActivos = 0;
-	printf("\n--- ALQUILERES ACTIVOS DISPONIBLES ---\n");
+	printf("\n--------------------------------- ALQUILERES ACTIVOS DISPONIBLES ---------------------------------\n");
 	while(fread(&a, sizeof(alquiler), 1, fAlq) == 1){
 		if(a.estado == 1){
 			float saldo = a.importeTotal - a.importePagado;
@@ -139,7 +139,7 @@ void registrarPago(void){
 		fclose(fAlq);
 		return;
 	}
-	printf("---------------------------------------\n");
+	printf("--------------------------------------------------------------------------------------------------------\n");
 	nroAlq = leerEnteroPositivo("Ingrese numero de alquiler a abonar: ");
 	rewind(fAlq);
 	int encontrado = 0;

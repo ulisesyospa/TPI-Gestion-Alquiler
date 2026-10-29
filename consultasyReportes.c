@@ -12,7 +12,7 @@ void menuConsultasyReportes(void){
     char buffer[100];
     char basura;
     do{
-        printf("\n=== CONSULTAS Y REPORTES ===\n");
+        printf("\n================================= CONSULTAS Y REPORTES =================================\n");
         printf("1. Vehiculos disponibles\n");
         printf("2. Vehiculos alquilados\n");
         printf("3. Alquileres por rango de fechas\n");
@@ -87,7 +87,7 @@ void vehiculosDisponibles(void){
 		printf("[ERROR] No se pudo abrir el archivo.\n");
 		return;
 	}	
-	printf("\n--- VEHICULOS DISPONIBLES ---\n");	
+	printf("\n--------------------------------- VEHICULOS DISPONIBLES ---------------------------------\n");	
 	while(fread(&v, sizeof(vehiculo), 1, archivo)==1){
 		if(v.estado==1){
 			printf("Patente: %s\n", v.patente);
@@ -97,7 +97,7 @@ void vehiculosDisponibles(void){
 			printf("Tipo: %s\n", v.tipo);
 			printf("Capacidad: %d\n", v.capacidad);
 			printf("Precio por dia: $%.2f\n", v.precioPorDia);
-			printf("--------------------------\n");			
+			printf("-----------------------------------------------------------------------------------------\n");			
 			contador=contador+1;
 		}
 	}	
@@ -132,7 +132,7 @@ void vehiculosAlquilados(){
         fclose(archivoA);
         return;
     }
-    printf("\n--- VEHICULOS ALQUILADOS ---\n");
+    printf("\n--------------------------------- VEHICULOS ALQUILADOS ---------------------------------\n");
     while (fread(&v, sizeof(vehiculo), 1, archivoV) == 1)
     {
         if (v.estado == 2)
@@ -244,7 +244,7 @@ void alquileresPorRangoFechas(void){
     alquiler a;
     fecha inicial, final;
     int encontrado = 0;
-    printf("\n--- ALQUILERES POR RANGO DE FECHAS ---\n");
+    printf("\n--------------------------------- ALQUILERES POR RANGO DE FECHAS ---------------------------------\n");
    
     /* Ingresar fecha inicial */
     while (1){
@@ -306,7 +306,7 @@ void alquileresPorCliente(void){
     char texto[100];
     int dni, i;
     int valido, existe, encontrado;
-    printf("\n--- ALQUILERES POR CLIENTE ---\n");
+    printf("\n--------------------------------- ALQUILERES POR CLIENTE ---------------------------------\n");
     /* Ingresar y validar el DNI */
     while (1){
         printf("Ingrese el DNI del cliente: ");
@@ -388,7 +388,7 @@ void alquileresPorVehiculo(void){
     char texto[100];
     char patenteAlquiler[10];
     int i, valido, existe, encontrado;
-    printf("\n--- ALQUILERES POR VEHICULO ---\n");
+    printf("\n--------------------------------- ALQUILERES POR VEHICULO ---------------------------------\n");
     
     /* Ingresar y validar la patente */
     while(1){
@@ -501,7 +501,7 @@ void alquileresPorEstado(void){
     int contador;
     do{
         contador = 0;
-        printf("\n--- ALQUILERES POR ESTADO ---\n");
+        printf("\n---------------------------------ALQUILERES POR ESTADO ---------------------------------\n");
         printf("1. Activos\n");
         printf("2. Finalizados\n");
         printf("0. Cancelados\n");
@@ -596,7 +596,7 @@ void alquileresPorImporte(void){
     int contador = 0;
     int valido;
     int i;
-    printf("\n=== ALQUILERES POR IMPORTE ===\n");
+    printf("\n================================= ALQUILERES POR IMPORTE =================================\n");
     /* Ingresar y validar el importe */
     while(1){
         printf("Ingrese un importe: ");
@@ -676,7 +676,7 @@ void pagosRealizados(void){
     fecha inicial, final;
     int numInicial, numFinal, numPago;
     int contador = 0;
-    printf("\n--- PAGOS REALIZADOS ---\n");
+    printf("\n--------------------------------- PAGOS REALIZADOS ---------------------------------\n");
     /* Ingresar fecha inicial */
     while(1){
         printf("\nFecha inicial:\n");
@@ -762,7 +762,7 @@ void clientesConDeuda(void) {
         fclose(archivoA);
         return;
     }
-    printf("\n--- CLIENTES CON DEUDA ---\n");
+    printf("\n--------------------------------- CLIENTES CON DEUDA ---------------------------------\n");
     // recorremos los alquileres 
     while (fread(&a, sizeof(alquiler), 1, archivoA) == 1){
         saldo = a.importeTotal - a.importePagado;
@@ -836,7 +836,7 @@ void estadisticasEmpresa(void){
         totalPendiente += a.importeTotal - a.importePagado;
     }
     fclose(archivoA);
-    printf("\n===== ESTADISTICAS DE LA EMPRESA =====\n");
+    printf("\n================================= ESTADISTICAS DE LA EMPRESA =================================\n");
     printf("Cantidad total de vehiculos: %d\n", totalVehiculos);
     printf("Vehiculos disponibles: %d\n", disponibles);
     printf("Vehiculos alquilados: %d\n", alquilados);
