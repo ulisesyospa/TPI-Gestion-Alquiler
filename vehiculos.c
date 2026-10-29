@@ -58,7 +58,7 @@ int esFormatoPatenteValido(char *patente) {
 void menuVehiculos(void) {
     int opcion;
     do {
-        printf("\n=== MENU VEHICULOS ===\n");
+        printf("\n================================= MENU VEHICULOS =================================\n");
         printf("1. Registrar vehiculo\n2. Buscar vehiculo\n3. Mostrar vehiculos\n4. Modificar vehiculo\n0. Volver al menu principal\n");
         printf("Seleccione una opcion: ");
         opcion = leerEnteroEnRango(0, 4, "[Error] Opcion invalida. Ingrese un numero entre 0 y 4: ");
@@ -113,7 +113,7 @@ void registrarVehiculo(void) {
     vehiculo v;
     FILE *archivo;
     int i;
-    printf("\n--- REGISTRAR VEHICULO ---\n");
+    printf("\n--------------------------------- REGISTRAR VEHICULO ---------------------------------\n");
     // Ingreso y validacion de Patente
     while (1) {
         printf("Patente (Formato AA000AA): ");
@@ -215,7 +215,7 @@ int mostrarVehiculo(void) {
     }
     vehiculo v;
     int contador = 0;
-    printf("\n=== LISTADO GENERAL DE VEHICULOS ===\n");
+    printf("\n=================================  LISTADO GENERAL DE VEHICULOS ================================= \n");
     printf("-----------------------------------------------------------------------------------------------------\n");
     printf("%-10s %-12s %-12s %-6s %-10s %-10s %-12s %-12s\n", "Patente", "Marca", "Modelo", "Anio", "Tipo", "Capacidad", "Precio/Dia", "Estado");
     printf("-----------------------------------------------------------------------------------------------------\n");
@@ -239,7 +239,7 @@ int mostrarVehiculo(void) {
 int modificarVehiculo(void) {
     char patenteBusq[15];
     int i;
-    printf("\n=== MODIFICAR VEHICULO ===\n");
+    printf("\n================================= MODIFICAR VEHICULO =================================\n");
     while (1) {
         printf("Ingrese la patente del vehiculo a modificar (Formato AA000AA): ");
         if (fgets(patenteBusq, sizeof(patenteBusq), stdin) != NULL) patenteBusq[strcspn(patenteBusq, "\n")] = '\0';
