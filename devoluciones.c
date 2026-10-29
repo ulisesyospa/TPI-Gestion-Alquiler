@@ -6,6 +6,7 @@
 #include "alquileres.h"
 #include "vehiculos.h"
 #include "devoluciones.h"
+#include "movimiento.h"
 void menuDevoluciones(void) {
     int opcion;
     char buffer[100];
@@ -57,20 +58,42 @@ void registrarDevolucion(void) {
     int nroAlq;
     fecha fechaEfectiva;   
     char bufferFecha[100];
+    char bufferMonto[100];
+    char basura;
     printf("\n=== REGISTRAR DEVOLUCION ===\n");
-    printf("Ingrese numero de alquiler activo: ");
-    if (fgets(bufferFecha, sizeof(bufferFecha), stdin) != NULL) {
-        bufferFecha[strcspn(bufferFecha, "\n")] = '\0';
-        sscanf(bufferFecha, "%d", &nroAlq);
-    } else {
-        return;
-    }   
+    
+    // Listar alquileres activos para que el usuario elija visualmente
     FILE *fAlq = fopen("alquileres.dat", "rb+");
     if (fAlq == NULL) {
         printf("[Error] No se pudo abrir el archivo de alquileres.\n");
         return;
     }   
     alquiler a;
+    int contadorActivos = 0;
+    printf("\n--- ALQUILERES ACTIVOS ---\n");
+    while (fread(&a, sizeof(alquiler), 1, fAlq) == 1) {
+        if (a.estado == 1) {
+            printf("Nro Alquiler: %d | DNI: %d | Patente: %s | Inicio: %02d/%02d/%d\n",
+                   a.nroAlquiler, a.dniCliente, a.patenteVehiculo,
+                   a.fecInicio.dia, a.fecInicio.mes, a.fecInicio.anio);
+            contadorActivos++;
+        }
+    }
+    if (contadorActivos == 0) {
+        printf("[Aviso] No hay alquileres activos para devolver.\n");
+        fclose(fAlq);
+        return;
+    }
+    printf("----------------------------\n");
+    printf("Ingrese numero de alquiler activo: ");
+    if (fgets(bufferFecha, sizeof(bufferFecha), stdin) != NULL) {
+        bufferFecha[strcspn(bufferFecha, "\n")] = '\0';
+        sscanf(bufferFecha, "%d", &nroAlq);
+    } else {
+        fclose(fAlq);
+        return;
+    }   
+    rewind(fAlq);
     int encontrado = 0;
     long posAlquiler = 0;   
     while (fread(&a, sizeof(alquiler), 1, fAlq) == 1) {
@@ -112,7 +135,7 @@ void registrarDevolucion(void) {
         fComprobacion.tm_mon = fechaEfectiva.mes - 1;
         fComprobacion.tm_year = fechaEfectiva.anio - 1900;
         time_t tDevolucion = mktime(&fComprobacion);
-        if (tDevolucion > (tActual + 86400)) { // Margen de 1 día por huso horario
+        if (tDevolucion > (tActual + 86400)) { 
             printf("[Error] La fecha de devolucion no puede ser posterior a la fecha actual.\n");
             continue;
         }
@@ -137,32 +160,60 @@ void registrarDevolucion(void) {
     }   
     int diasReales = calcularDiasTranscurridosDevolucion(a.fecInicio, fechaEfectiva);
     if (diasReales == 0) {
-        diasReales = 1; // Mínimo 1 día de cobro si se devuelve el mismo día
+        diasReales = 1; 
     }   
-    if (diasReales > a.cantidadDias) {
-        int diasAdicionales = diasReales - a.cantidadDias;
-        float recargo = diasAdicionales * precioPorDia;
-        a.importeTotal += recargo;
-        printf("[Aviso] Devolucion fuera de termino. Dias de atraso: %d. Recargo aplicado: $%.2f\n", diasAdicionales, recargo);
-    } else if (diasReales < a.cantidadDias) {
-        int diasNoUtilizados = a.cantidadDias - diasReales;
-        float descuento = diasNoUtilizados * precioPorDia;
-        a.importeTotal -= descuento;
-        if (a.importeTotal < 0) a.importeTotal = 0;
-        printf("[Aviso] Devolucion anticipada. Dias no utilizados: %d. Descuento aplicado: -$%.2f\n", diasNoUtilizados, descuento);
-    }   
-    a.estado = 2;   
+    
+    // Recalculamos el importe total basándonos estrictamente en los días reales de uso (sin devoluciones de plata hacia atrás)
+    a.cantidadDias = diasReales;
+    a.importeTotal = precioPorDia * diasReales;
+
+    if (diasReales > (int)((ftell(fVeh)) ? a.cantidadDias : a.cantidadDias)) { 
+        // Mensaje orientativo de recargo por atraso si aplica
+    }
+
+    printf("\n--- LIQUIDACION FINAL DE ALQUILER ---\n");
+    printf("Dias reales utilizados: %d\n", diasReales);
+    printf("Importe Total a Pagar por el uso: $%.2f\n", a.importeTotal);
+    
+    float montoAbonadoAhora = 0.0;
+    do {
+        printf("Ingrese el monto que abona el cliente para finalizar: ");
+        if (fgets(bufferMonto, sizeof(bufferMonto), stdin) == NULL) continue;
+        if (bufferMonto[0] == '\n' || bufferMonto[0] == '\r') {
+            printf("[Aviso] Debe ingresar un monto.\n");
+            continue;
+        }
+        if (sscanf(bufferMonto, " %f %c", &montoAbonadoAhora, &basura) != 1 || montoAbonadoAhora < 0) {
+            printf("[Error] Monto invalido. Ingrese un numero positivo.\n");
+            montoAbonadoAhora = -1;
+            continue;
+        }
+        if (montoAbonadoAhora < a.importeTotal - 0.005f) {
+            printf("[Aviso] El monto es menor al total. Quedara saldo pendiente.\n");
+        }
+    } while (montoAbonadoAhora < 0);
+
+    a.importePagado += montoAbonadoAhora;
+    a.estado = 2; // Finalizado  
+    
     fseek(fAlq, posAlquiler, SEEK_SET);
     fwrite(&a, sizeof(alquiler), 1, fAlq);
     fflush(fAlq);
     fclose(fAlq);  
-    v.estado = 1; 
+    
+    v.estado = 1; // Vehículo disponible nuevamente
     fseek(fVeh, posVehiculo, SEEK_SET);
     fwrite(&v, sizeof(vehiculo), 1, fVeh);
     fflush(fVeh);
     fclose(fVeh);   
+
+    // Registramos el movimiento financiero del pago realizado en la devolución
+    if (montoAbonadoAhora > 0) {
+        registrarMovimiento(a.nroAlquiler, a.dniCliente, a.patenteVehiculo, "Pago Devolucion", montoAbonadoAhora, fechaEfectiva);
+    }
+
     float saldoPendiente = a.importeTotal - a.importePagado;
-    printf("[Exito] Devolucion registrada correctamente.\n");
-    printf("Importe Total Actualizado: $%.2f | Ya Pagado: $%.2f | Saldo Restante a Abonar: $%.2f\n", 
+    printf("\n[Exito] Devolucion registrada correctamente.\n");
+    printf("Importe Total: $%.2f | Total Abonado: $%.2f | Saldo Pendiente: $%.2f\n", 
            a.importeTotal, a.importePagado, saldoPendiente);
 }
