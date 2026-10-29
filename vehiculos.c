@@ -217,7 +217,7 @@ int mostrarVehiculo(void) {
     int contador = 0;
     printf("\n=================================  LISTADO GENERAL DE VEHICULOS ================================= \n");
     printf("-----------------------------------------------------------------------------------------------------\n");
-    printf("%-10s %-12s %-12s %-6s %-10s %-10s %-12s %-12s\n", "Patente", "Marca", "Modelo", "Anio", "Tipo", "Capacidad", "Precio/Dia", "Estado");
+    printf("%-10s %-12s\t%-12s\t%-6s\t%-10s\t%-10s\t%-12s\t%-12s\t\n", "Patente", "Marca", "Modelo", "Anio", "Tipo", "Capacidad", "Precio/Dia", "Estado");
     printf("-----------------------------------------------------------------------------------------------------\n");
     while (fread(&v, sizeof(vehiculo), 1, archivo) == 1) {
         char strEstado[15];

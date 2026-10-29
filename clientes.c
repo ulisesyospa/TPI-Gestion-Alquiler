@@ -79,8 +79,23 @@ int fechaValidaCliente(int dia, int mes, int anio){
        copia.tm_year != anio - 1900){
         return 0;
     }
+    
+    // Obtener la fecha actual del sistema normalizada a medianoche para comparar días exactos
     time_t tActual = time(NULL);
-    if (controlFecha > tActual) {
+    struct tm *infoActual = localtime(&tActual);
+    infoActual->tm_hour = 0;
+    infoActual->tm_min = 0;
+    infoActual->tm_sec = 0;
+    time_t tActualSinHora = mktime(infoActual);
+    
+    struct tm *infoIngresada = localtime(&controlFecha);
+    infoIngresada->tm_hour = 0;
+    infoIngresada->tm_min = 0;
+    infoIngresada->tm_sec = 0;
+    time_t tIngresadaSinHora = mktime(infoIngresada);
+
+    // Valida que la fecha de alta sea estrictamente el día de hoy (no anterior ni futura)
+    if (tIngresadaSinHora != tActualSinHora) {
         return 0;
     }
     return 1;
@@ -186,7 +201,7 @@ void registrarCliente(void){
 	int diaAlta, mesAlta, anioAlta;
     char bufferFecha[100];
 	do {
-		printf("Fecha de alta (DD/MM/AAAA): ");
+		printf("Fecha de alta (DD/MM/AAAA - Debe ser la fecha de hoy): ");
         if (fgets(bufferFecha, sizeof(bufferFecha), stdin) == NULL) {
             diaAlta = 0;
             continue;
@@ -201,7 +216,7 @@ void registrarCliente(void){
 			printf("Formato invalido. Use DD/MM/AAAA.\n");
 			diaAlta = 0;
 		} else if(!fechaValidaCliente(diaAlta, mesAlta, anioAlta)){
-			printf("La fecha no existe, es invalida o es posterior a la fecha actual.\n");
+			printf("La fecha de alta debe ser estrictamente la fecha actual del sistema.\n");
 			diaAlta = 0;
 		}
 	} while(diaAlta == 0);
@@ -320,8 +335,6 @@ void modificarCliente(void){
 	int encontrado=0;
 	int opcion;
 	long posicion;
-	int resultado;
-	int caracter;
     char buffer[100];
     char basura;	
 	printf("\n--------------------------------- MODIFICAR CLIENTE ---------------------------------\n");
