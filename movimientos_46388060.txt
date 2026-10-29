@@ -1,0 +1,2 @@
+
+Movimiento Nro: 2 | Alquiler: 100 | Tipo: Pago | Monto: 5000.00 | Fecha: 30/10/2027 | Patente: LL127LL
