@@ -155,10 +155,10 @@ void realizarAlquiler(void){
     }
     vehiculo v;
     int contadorDisponibles = 0;
-    printf("\n--- VEHICULOS DISPONIBLES ---\n");
+    printf("\n--------------------------------- VEHICULOS DISPONIBLES ---------------------------------\n");
     while(fread(&v, sizeof(vehiculo), 1, fVeh) == 1){
         if(v.estado == 1){
-            printf("Patente: %s | Marca/Modelo: %s | Precio por dia: $%.2f\n", v.patente, v.modelo, v.precioPorDia);
+            printf("Patente: %s | Marca/Modelo: %s\t | Precio por dia: $%.2f\t\n", v.patente, v.modelo, v.precioPorDia);
             contadorDisponibles++;
         }
     }
@@ -167,7 +167,7 @@ void realizarAlquiler(void){
         fclose(fVeh);
         return;
     }
-    printf("--------------------------------\n");
+    printf("-----------------------------------------------------------------------------------------\n");
     patenteValida(nuevo.patenteVehiculo, sizeof(nuevo.patenteVehiculo), "Ingrese la patente del vehiculo a alquilar: ");
     int vehiculoEncontrado = 0;
     float precioPorDia = 0.0;
