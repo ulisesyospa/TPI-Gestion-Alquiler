@@ -245,7 +245,6 @@ void alquileresPorRangoFechas(void){
     fecha inicial, final;
     int encontrado = 0;
     printf("\n--------------------------------- ALQUILERES POR RANGO DE FECHAS ---------------------------------\n");
-   
     /* Ingresar fecha inicial */
     while (1){
         printf("\nFecha inicial:\n");
@@ -280,7 +279,6 @@ void alquileresPorRangoFechas(void){
     while (fread(&a, sizeof(alquiler), 1, archivo) == 1){
         /* Verificar si la fecha de inicio esta dentro del rango */
         int desdeInicial = a.fecInicio.anio > inicial.anio || (a.fecInicio.anio == inicial.anio && a.fecInicio.mes > inicial.mes) || (a.fecInicio.anio == inicial.anio && a.fecInicio.mes == inicial.mes && a.fecInicio.dia >= inicial.dia);
-
         int hastaFinal = a.fecInicio.anio < final.anio || (a.fecInicio.anio == final.anio && a.fecInicio.mes < final.mes) || (a.fecInicio.anio == final.anio && a.fecInicio.mes == final.mes && a.fecInicio.dia <= final.dia);
         if (desdeInicial && hastaFinal){
             printf("\nNumero de alquiler: %d\n", a.nroAlquiler);
@@ -299,7 +297,8 @@ void alquileresPorRangoFechas(void){
     }
     fclose(archivo);
 }
-void alquileresPorCliente(void){
+
+void alquileresPorCliente(void) {
     FILE *archivoC, *archivoA;
     cliente c;
     alquiler a;
@@ -307,59 +306,80 @@ void alquileresPorCliente(void){
     int dni, i;
     int valido, existe, encontrado;
     printf("\n--------------------------------- ALQUILERES POR CLIENTE ---------------------------------\n");
+    /* Mostrar lista de DNI de los clientes */
+    archivoC = fopen("clientes.dat", "rb");
+    if (archivoC == NULL) {
+        printf("No se pudo abrir el archivo de clientes.\n");
+        return;
+    }
+    printf("\n--- DNI DE CLIENTES REGISTRADOS ---\n\n");
+    printf("%-15s\n", "DNI");
+    printf("--------------------\n");
+    existe = 0;
+    while (fread(&c, sizeof(cliente), 1, archivoC) == 1) {
+        printf("%-15d\n", c.dni);
+        existe = 1;
+    }
+    fclose(archivoC);
+    if (existe == 0) {
+        printf("No hay clientes registrados.\n");
+        return;
+    }
     /* Ingresar y validar el DNI */
-    while (1){
-        printf("Ingrese el DNI del cliente: ");
-        fgets(texto, sizeof(texto), stdin);
+    while (1) {
+        printf("\nIngrese el DNI del cliente: ");
+        if (fgets(texto, sizeof(texto), stdin) == NULL) {
+            return;
+        }
         texto[strcspn(texto, "\n")] = '\0';
         valido = 1;
         /* Verificar que todos los caracteres sean numeros */
-        for (i = 0; texto[i] != '\0'; i++){
-            if (texto[i] < '0' || texto[i] > '9'){
+        for (i = 0; texto[i] != '\0'; i++) {
+            if (texto[i] < '0' || texto[i] > '9') {
                 valido = 0;
             }
         }
         /* Verificar que tenga 8 digitos */
-        if (i < 8){
+        if (i != 8) {
             valido = 0;
         }
-        if (valido == 0){
+        if (valido == 0) {
             printf("DNI incorrecto. Ingrese 8 digitos numericos.\n");
-        }
-        else{
+        } else {
             dni = atoi(texto);
             break;
         }
     }
     /* Comprobar que el cliente exista */
     archivoC = fopen("clientes.dat", "rb");
-    if (archivoC == NULL){
+    if (archivoC == NULL) {
         printf("No se pudo abrir el archivo de clientes.\n");
         return;
     }
     existe = 0;
-    while (fread(&c, sizeof(cliente), 1, archivoC) == 1){
-        if (c.dni == dni){
+    while (fread(&c, sizeof(cliente), 1, archivoC) == 1 &&
+           existe == 0) {
+
+        if (c.dni == dni) {
             existe = 1;
-            break;
         }
     }
     fclose(archivoC);
-    if (existe == 0){
+    if (existe == 0) {
         printf("No existe un cliente con ese DNI.\n");
         return;
     }
     /* Abrir el archivo de alquileres */
     archivoA = fopen("alquileres.dat", "rb");
-    if (archivoA == NULL){
+    if (archivoA == NULL) {
         printf("No se pudo abrir el archivo de alquileres.\n");
         return;
     }
     encontrado = 0;
     printf("\nAlquileres del cliente con DNI %d:\n", dni);
     /* Buscar todos los alquileres del cliente */
-    while (fread(&a, sizeof(alquiler), 1, archivoA) == 1){
-        if (a.dniCliente == dni){
+    while (fread(&a, sizeof(alquiler), 1, archivoA) == 1) {
+        if (a.dniCliente == dni) {
             printf("\nNumero de alquiler: %d\n", a.nroAlquiler);
             printf("Patente del vehiculo: %s\n", a.patenteVehiculo);
             printf("Fecha de inicio: %02d/%02d/%04d\n",
@@ -376,122 +396,143 @@ void alquileresPorCliente(void){
             encontrado = 1;
         }
     }
-    if (encontrado == 0){
+    fclose(archivoA);
+    if (encontrado == 0) {
         printf("\nEl cliente existe, pero no tiene alquileres registrados.\n");
     }
-    fclose(archivoA);
 }
-void alquileresPorVehiculo(void){
+
+void alquileresPorVehiculo(void) {
     FILE *archivoV, *archivoA;
     vehiculo v;
     alquiler a;
     char texto[100];
     char patenteAlquiler[10];
+    char patenteArchivo[10];
     int i, valido, existe, encontrado;
-    printf("\n--------------------------------- ALQUILERES POR VEHICULO ---------------------------------\n");
-    
+    /* Mostrar todos los vehiculos */
+    archivoV = fopen("vehiculos.dat", "rb");
+    if (archivoV == NULL) {
+        printf("No se pudo abrir el archivo de vehiculos.\n");
+        return;
+    }
+    printf("\n--- LISTA DE VEHICULOS ---\n\n");
+    printf("%-12s %-15s %-20s %-10s\n",
+           "PATENTE", "MARCA", "MODELO", "CAPACIDAD");
+    printf("---------------------------------------------------------------\n");
+    existe = 0;
+    while (fread(&v, sizeof(vehiculo), 1, archivoV) == 1) {
+        printf("%-12s %-15s %-20s %-10d\n",
+               v.patente, v.marca, v.modelo, v.capacidad);existe = 1;
+    }
+    fclose(archivoV);
+    if (existe == 0) {
+        printf("No hay vehiculos registrados.\n");
+        return;
+    }
     /* Ingresar y validar la patente */
-    while(1){
-        printf("Ingrese la patente del vehiculo (AB123CD): ");
-        if(fgets(texto, sizeof(texto), stdin) == NULL){
-            printf("Error al leer la patente.\n");
+    do {
+        valido = 1;
+        printf("\nIngrese la patente del vehiculo (AB123CD): ");
+        if (fgets(texto, sizeof(texto), stdin) == NULL) {
             return;
         }
-        /* Verificar si la entrada entra completa */
-        if(strchr(texto, '\n') == NULL){
-            limpiarEntradaCR();
-            printf("Patente incorrecta. Intente nuevamente.\n");
-            continue;
-        }
+        /* Eliminar el salto de linea */
         texto[strcspn(texto, "\n")] = '\0';
-        /* Rechazar patente vacia o con formato incorrecto */
-        if(strlen(texto) != 7){
-            printf("Patente incorrecta. Debe tener 2 letras, 3 numeros y 2 letras. Ejemplo: AB123CD.\n");
-            continue;
-        }
-        valido = 1;
-        /* Convertir letras minusculas a mayusculas */
-        for(i = 0; texto[i] != '\0'; i++){
-            if(texto[i] >= 'a' && texto[i] <= 'z'){
+        /* Convertir la patente ingresada a mayusculas */
+        for (i = 0; texto[i] != '\0'; i++) {
+            if (texto[i] >= 'a' && texto[i] <= 'z') {
                 texto[i] = texto[i] - 32;
             }
         }
-        /* Verificar 2 letras + 3 numeros + 2 letras */
-        if(!((texto[0] >= 'A' && texto[0] <= 'Z') &&
-             (texto[1] >= 'A' && texto[1] <= 'Z') &&
-             (texto[2] >= '0' && texto[2] <= '9') &&
-             (texto[3] >= '0' && texto[3] <= '9') &&
-             (texto[4] >= '0' && texto[4] <= '9') &&
-             (texto[5] >= 'A' && texto[5] <= 'Z') &&
-             (texto[6] >= 'A' && texto[6] <= 'Z'))){
+        /* Validar formato AB123CD */
+        if (strlen(texto) != 7) {
             valido = 0;
+        } else {
+            for (i = 0; i < 7; i++) {
+
+                if (i == 0 || i == 1 || i == 5 || i == 6) {
+                    if (texto[i] < 'A' || texto[i] > 'Z') {
+                        valido = 0;
+                    }
+                } else {
+                    if (texto[i] < '0' || texto[i] > '9') {
+                        valido = 0;
+                    }
+                }
+            }
         }
-        if(valido == 0){
-            printf("Patente incorrecta. Use el formato AB123CD.\n");
+        if (valido == 0) {
+            printf("Patente invalida. Debe tener el formato AB123CD.\n");
         }
-        else{
-            break;
-        }
-    }
-    /* Comprobar que el vehiculo exista */
+
+    } while (valido == 0);
+    strcpy(patenteAlquiler, texto);
+    /* Verificar que el vehiculo exista */
     archivoV = fopen("vehiculos.dat", "rb");
-    if (archivoV == NULL){
+    if (archivoV == NULL) {
         printf("No se pudo abrir el archivo de vehiculos.\n");
         return;
     }
     existe = 0;
-    while (fread(&v, sizeof(vehiculo), 1, archivoV) == 1){
-        if (strcmp(v.patente, texto) == 0){
+    while (fread(&v, sizeof(vehiculo), 1, archivoV) == 1 && existe == 0) {
+        /* Copiar y convertir la patente del archivo a mayusculas */
+        strcpy(patenteArchivo, v.patente);
+        for (i = 0; patenteArchivo[i] != '\0'; i++) {
+            if (patenteArchivo[i] >= 'a' &&
+                patenteArchivo[i] <= 'z') {
+                patenteArchivo[i] = patenteArchivo[i] - 32;
+            }
+        }
+        if (strcmp(patenteArchivo, patenteAlquiler) == 0) {
             existe = 1;
-            break;
         }
     }
     fclose(archivoV);
-    if (existe == 0){
+    if (existe == 0) {
         printf("No existe un vehiculo con esa patente.\n");
         return;
     }
-    /* Abrir el archivo de alquileres */
+    /* Buscar los alquileres del vehiculo */
     archivoA = fopen("alquileres.dat", "rb");
-    if (archivoA == NULL){
+    if (archivoA == NULL) {
         printf("No se pudo abrir el archivo de alquileres.\n");
         return;
     }
+    printf("\n--- ALQUILERES DEL VEHICULO %s ---\n",patenteAlquiler);
     encontrado = 0;
-    printf("\nHistorial de alquileres de la patente %s:\n", texto);
-    /* Buscar todos los alquileres asociados a la patente */
-    while (fread(&a, sizeof(alquiler), 1, archivoA) == 1){
-        strcpy(patenteAlquiler, a.patenteVehiculo);
-        /* Convertir la patente guardada a mayusculas */
-        for (i = 0; patenteAlquiler[i] != '\0'; i++){
-            if (patenteAlquiler[i] >= 'a' &&
-                patenteAlquiler[i] <= 'z'){
-                patenteAlquiler[i] = patenteAlquiler[i] - 32;
+    while (fread(&a, sizeof(alquiler), 1, archivoA) == 1) {
+        /* Convertir la patente del alquiler a mayusculas */
+        strcpy(patenteArchivo, a.patenteVehiculo);
+        for (i = 0; patenteArchivo[i] != '\0'; i++) {
+            if (patenteArchivo[i] >= 'a' &&
+                patenteArchivo[i] <= 'z') {
+                patenteArchivo[i] = patenteArchivo[i] - 32;
             }
         }
-        if (strcmp(patenteAlquiler, texto) == 0){
+        if (strcmp(patenteArchivo, patenteAlquiler) == 0) {
             printf("\nNumero de alquiler: %d\n", a.nroAlquiler);
             printf("DNI del cliente: %d\n", a.dniCliente);
             printf("Fecha de inicio: %02d/%02d/%04d\n",
-                   a.fecInicio.dia,
-                   a.fecInicio.mes,
-                   a.fecInicio.anio);
+                    a.fecInicio.dia,
+                    a.fecInicio.mes,
+                    a.fecInicio.anio);
             printf("Fecha prevista de devolucion: %02d/%02d/%04d\n",
-                   a.fecPrevitaDevolucion.dia,
-                   a.fecPrevitaDevolucion.mes,
-                   a.fecPrevitaDevolucion.anio);
-            printf("Cantidad de dias: %d\n", a.cantidadDias);
-            printf("Importe total: $%.2f\n", a.importeTotal);
-            printf("Importe pagado: $%.2f\n", a.importePagado);
-            printf("Estado del alquiler: %d\n", a.estado);
-            encontrado = 1;
-        }
-    }
-    if (encontrado == 0){
-        printf("\nEl vehiculo existe, pero no tiene alquileres registrados.\n");
+                    a.fecPrevitaDevolucion.dia,
+                    a.fecPrevitaDevolucion.mes,
+                    a.fecPrevitaDevolucion.anio);
+        printf("Cantidad de dias: %d\n", a.cantidadDias);
+        printf("Importe total: %.2f\n", a.importeTotal);
+        printf("Importe pagado: %.2f\n", a.importePagado);
+        encontrado = 1;
+       }
     }
     fclose(archivoA);
+    if (encontrado == 0) {
+        printf("Este vehiculo no tiene alquileres registrados.\n");
+    }
 }
+
 void alquileresPorEstado(void){
     FILE *archivo;
     alquiler a;
@@ -585,77 +626,10 @@ void alquileresPorEstado(void){
             }
             fclose(archivo);
         }
-<<<<<<< HEAD
- 
     }while (estado != 9);
-
 }
 
 
-
-
-
-void alquileresPorImporte(void){
-    FILE *archivo;
-    alquiler a;
-    float importe;
-    int opcion;
-    int contador = 0;
-
-    archivo = fopen("alquileres.dat", "rb");
-
-    if(archivo == NULL){
-        printf("[Error] No se pudo abrir el archivo de alquileres.\n");
-        return;
-    }
-
-    printf("\n=== ALQUILERES POR IMPORTE ===\n");
-    printf("Ingrese un importe: ");
-    scanf("%f", &importe);
-
-    printf("\n1. Alquileres superiores al importe\n");
-    printf("2. Alquileres inferiores al importe\n");
-    printf("Seleccione una opcion: ");
-    scanf("%d", &opcion);
-
-    if(opcion != 1 && opcion != 2){
-        printf("[Error] Opcion invalida.\n");
-        fclose(archivo);
-        return;
-    }
-
-    while(fread(&a, sizeof(alquiler), 1, archivo) == 1){
-
-        if((opcion == 1 && a.importeTotal > importe) ||
-           (opcion == 2 && a.importeTotal < importe)){
-
-            printf("\nNro Alquiler: %d\n", a.nroAlquiler);
-            printf("DNI Cliente: %d\n", a.dniCliente);
-            printf("Patente: %s\n", a.patenteVehiculo);
-            printf("Importe Total: $%.2f\n", a.importeTotal);
-
-            contador++;
-        }
-    }
-
-    if(contador == 0){
-        printf("\nNo se encontraron alquileres con ese criterio.\n");
-    }
-
-    fclose(archivo);
-}
-
-
-
-
-
-
-void pagosRealizados(void) {
-	
-	FILE *archivo;
-=======
-    }while(estado != 9);
-}
 void alquileresPorImporte(void){
     FILE *archivo;
     alquiler a;
@@ -741,7 +715,6 @@ void alquileresPorImporte(void){
 
 void pagosRealizados(void){
     FILE *archivo;
->>>>>>> 2e59ddb6ef32fac1ebf7ec6e9af36f4f64a790a2
     movimiento m;
     fecha inicial, final;
     int numInicial, numFinal, numPago;
@@ -866,32 +839,6 @@ void clientesConDeuda(void) {
     fclose(archivoA);
     fclose(archivoC);
 }
-<<<<<<< HEAD
-
-
-
-
-
-void estadisticasEmpresa(void){
-    FILE *archivoV;
-    FILE *archivoA;
-
-    vehiculo v;
-    alquiler a;
-
-    int totalVehiculos = 0;
-    int disponibles = 0;
-    int alquilados = 0;
-
-    int totalAlquileres = 0;
-    int alquileresActivos = 0;
-
-    float totalCobrado = 0;
-    float totalPendiente = 0;
-
-    archivoV = fopen("vehiculos.dat", "rb");
-
-=======
 void estadisticasEmpresa(void){
     FILE *archivoV;
     FILE *archivoA;
@@ -905,72 +852,47 @@ void estadisticasEmpresa(void){
     float totalCobrado = 0;
     float totalPendiente = 0;
     archivoV = fopen("vehiculos.dat", "rb");
->>>>>>> 2e59ddb6ef32fac1ebf7ec6e9af36f4f64a790a2
     if(archivoV == NULL){
         printf("[Error] No se pudo abrir vehiculos.dat\n");
         return;
     }
-<<<<<<< HEAD
-
     while(fread(&v, sizeof(vehiculo), 1, archivoV) == 1){
 
         totalVehiculos++;
-
-=======
     while(fread(&v, sizeof(vehiculo), 1, archivoV) == 1){
         totalVehiculos++;
->>>>>>> 2e59ddb6ef32fac1ebf7ec6e9af36f4f64a790a2
         if(v.estado == 1){
             disponibles++;
         }else if(v.estado == 2){
             alquilados++;
         }
     }
-<<<<<<< HEAD
-
-    fclose(archivoV);
-
-    archivoA = fopen("alquileres.dat", "rb");
-
-=======
     fclose(archivoV);
     archivoA = fopen("alquileres.dat", "rb");
->>>>>>> 2e59ddb6ef32fac1ebf7ec6e9af36f4f64a790a2
+    fclose(archivoV);
+    archivoA = fopen("alquileres.dat", "rb");
     if(archivoA == NULL){
         printf("[Error] No se pudo abrir alquileres.dat\n");
         return;
     }
-<<<<<<< HEAD
-
     while(fread(&a, sizeof(alquiler), 1, archivoA) == 1){
-
         totalAlquileres++;
-
         if(a.estado == 1){
             alquileresActivos++;
         }
-
         totalCobrado += a.importePagado;
-
         totalPendiente += a.importeTotal - a.importePagado;
     }
-
     fclose(archivoA);
-
     printf("\n===== ESTADISTICAS DE LA EMPRESA =====\n");
-
     printf("Cantidad total de vehiculos: %d\n", totalVehiculos);
     printf("Vehiculos disponibles: %d\n", disponibles);
     printf("Vehiculos alquilados: %d\n", alquilados);
-
     printf("Cantidad total de alquileres: %d\n", totalAlquileres);
     printf("Cantidad de alquileres activos: %d\n", alquileresActivos);
-
     printf("Importe total cobrado: $%.2f\n", totalCobrado);
     printf("Importe total pendiente de cobro: $%.2f\n", totalPendiente);
 }
-
-=======
     while(fread(&a, sizeof(alquiler), 1, archivoA) == 1){
         totalAlquileres++;
         if(a.estado == 1){
@@ -989,4 +911,3 @@ void estadisticasEmpresa(void){
     printf("Importe total cobrado: $%.2f\n", totalCobrado);
     printf("Importe total pendiente de cobro: $%.2f\n", totalPendiente);
 }
->>>>>>> 2e59ddb6ef32fac1ebf7ec6e9af36f4f64a790a2

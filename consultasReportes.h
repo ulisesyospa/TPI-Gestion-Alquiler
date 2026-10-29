@@ -12,9 +12,6 @@ void pagosRealizados(void);
 void clientesConDeuda(void);
 void estadisticasEmpresa(void);
 void estadisticasEmpresa(void);
-<<<<<<< HEAD
 
-=======
->>>>>>> 2e59ddb6ef32fac1ebf7ec6e9af36f4f64a790a2
 void limpiarEntradaCR(void);
 
