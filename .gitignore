@@ -1,4 +1,12 @@
+# Ejecutables
 tpi.exe
-movimiento.o
-vehiculos.o
+
+# Archivos objeto compilados
+*.o
+
+# Archivos de datos locales y respaldos
 *.dat
+*.layout
+
+# Archivos de texto generados por el sistema/programa (opcional, si no quieres que se suban los txt de movimientos)
+movimientos_*.txt
