@@ -4,7 +4,6 @@
 #include <ctype.h>
 #include <time.h>
 #include "vehiculos.h"
-
 // Valida que la cadena contenga unicamente letras y espacios
 int esSoloTextoValido(const char *cadena) {
     int i;
@@ -14,7 +13,6 @@ int esSoloTextoValido(const char *cadena) {
     }
     return 1;
 }
-
 // Verifica si la cadena esta vacia o compuesta solo por espacios/tabulaciones
 int esCadenaVaciaOEspacios(const char *cadena) {
     int i;
@@ -24,7 +22,6 @@ int esCadenaVaciaOEspacios(const char *cadena) {
     }
     return 1;
 }
-
 // Lee enteros de forma segura impidiendo saltos de linea, espacios solos o decimales
 int leerEnteroEnRango(int min, int max, const char *mensajeError) {
     char buffer[100];
@@ -44,7 +41,6 @@ int leerEnteroEnRango(int min, int max, const char *mensajeError) {
         printf("%s", mensajeError);
     }
 }
-
 // Controla que el formato sea exactamente 2 letras, 3 numeros y 2 letras (AA000AA)
 int esFormatoPatenteValido(char *patente) {
     if (strlen(patente) != 7) return 0;
@@ -53,12 +49,11 @@ int esFormatoPatenteValido(char *patente) {
     if (!isalpha((unsigned char)patente[5]) || !isalpha((unsigned char)patente[6])) return 0;
     return 1;
 }
-
 // Submenu principal de gestion de vehiculos
 void menuVehiculos(void) {
     int opcion;
     do {
-        printf("\n================================= MENU VEHICULOS =================================\n");
+        printf("\n============================== MENU VEHICULOS ==============================\n");
         printf("1. Registrar vehiculo\n2. Buscar vehiculo\n3. Mostrar vehiculos\n4. Modificar vehiculo\n0. Volver al menu principal\n");
         printf("Seleccione una opcion: ");
         opcion = leerEnteroEnRango(0, 4, "[Error] Opcion invalida. Ingrese un numero entre 0 y 4: ");
@@ -107,14 +102,12 @@ void menuVehiculos(void) {
         }
     } while (opcion != 0);
 }
-
 // Carga de un nuevo vehiculo guardandolo en vehiculos.dat con estado inicial Disponible (1)
 void registrarVehiculo(void) {
     vehiculo v;
     FILE *archivo;
     int i;
     printf("\n--------------------------------- REGISTRAR VEHICULO ---------------------------------\n");
-    // Ingreso y validacion de Patente
     while (1) {
         printf("Patente (Formato AA000AA): ");
         if (fgets(v.patente, sizeof(v.patente), stdin) != NULL) v.patente[strcspn(v.patente, "\n")] = '\0';
@@ -146,18 +139,25 @@ void registrarVehiculo(void) {
     } while (esCadenaVaciaOEspacios(v.modelo) || !esSoloTextoValido(v.modelo));
     // Ingreso de Anio
     printf("Anio (1886 a 2026): ");
-    v.anio = leerEnteroEnRango(1886, 2026, "[Error] Anio invalido. Debe ingresar un numero entero entre 1886 y 2026: ");
+    v.anio = leerEnteroEnRango(1886, 2026, "[Error] Anio invalido. Ingrese un numero entero entre 1886 y 2026: ");
     // Ingreso de Tipo
     do {
-        printf("Tipo de vehiculo (ej: Auto, Camioneta, SUV): ");
+        printf("Tipo de vehiculo (Auto, SUV, Camioneta): ");
         if (fgets(v.tipo, sizeof(v.tipo), stdin) != NULL) v.tipo[strcspn(v.tipo, "\n")] = '\0';
         if (esCadenaVaciaOEspacios(v.tipo)) printf("[Error] El tipo no puede estar vacio ni contener solo espacios.\n");
         else if (!esSoloTextoValido(v.tipo)) printf("[Error] El tipo solo debe contener letras y espacios.\n");
-    } while (esCadenaVaciaOEspacios(v.tipo) || !esSoloTextoValido(v.tipo));
-    // Ingreso de Capacidad de pasajeros
-    printf("Capacidad de pasajeros (1 a 10): ");
-    v.capacidad = leerEnteroEnRango(1, 10, "[Error] Capacidad invalida. Debe ingresar un numero entero entre 1 y 10: ");
-    // Ingreso de Precio por dia
+    } while (esCadenaVaciaOEspacios(v.tipo) || !esSoloTextoValido(v.tipo));    
+    // Asignación automática de capacidad según el tipo de vehículo ingresado
+    if (strcasecmp(v.tipo, "Auto") == 0 || strcasecmp(v.tipo, "Camioneta") == 0) {
+        v.capacidad = 5;
+        printf("Capacidad asignada automaticamente por tipo (%s): %d pasajeros.\n", v.tipo, v.capacidad);
+    } else if (strcasecmp(v.tipo, "SUV") == 0) {
+        v.capacidad = 7;
+        printf("Capacidad asignada automaticamente por tipo (%s): %d pasajeros.\n", v.tipo, v.capacidad);
+    } else {
+        printf("Capacidad de pasajeros (1 a 10): ");
+        v.capacidad = leerEnteroEnRango(1, 10, "[Error] Capacidad invalida. Ingrese un numero entero entre 1 y 10: ");
+    }    
     char bufferPrecio[100];
     float precioTemp;
     while (1) {
@@ -174,7 +174,7 @@ void registrarVehiculo(void) {
         }
         printf("[Error] Precio invalido. Ingrese un valor numerico mayor que cero: ");
     }
-    // Estado inicial automatico: 1 = Disponible
+     // Estado inicial automatico: 1 = Disponible
     v.estado = 1;
     // Guardado binario en archivo
     archivo = fopen("vehiculos.dat", "ab");
@@ -186,7 +186,6 @@ void registrarVehiculo(void) {
     else printf("\n[Error] No se pudo guardar el vehiculo en el archivo.\n");
     fclose(archivo);
 }
-
 // Busca un vehiculo en el archivo binario por su patente. Retorna 1 si existe o 0 si no.
 int buscarVehiculo(char patente[]) {
     int i;
@@ -205,7 +204,6 @@ int buscarVehiculo(char patente[]) {
     fclose(archivo);
     return encontrado;
 }
-
 // Muestra la lista completa de vehiculos almacenados formateados en tabla
 int mostrarVehiculo(void) {
     FILE *archivo = fopen("vehiculos.dat", "rb");
@@ -215,31 +213,33 @@ int mostrarVehiculo(void) {
     }
     vehiculo v;
     int contador = 0;
-    printf("\n=================================  LISTADO GENERAL DE VEHICULOS ================================= \n");
-    printf("-----------------------------------------------------------------------------------------------------\n");
-    printf("%-10s %-12s\t%-12s\t%-6s\t%-10s\t%-10s\t%-12s\t%-12s\t\n", "Patente", "Marca", "Modelo", "Anio", "Tipo", "Capacidad", "Precio/Dia", "Estado");
-    printf("-----------------------------------------------------------------------------------------------------\n");
+    printf("\n==============================  LISTADO GENERAL DE VEHICULOS ================================= \n");
+    printf("-------------------------------------------------------------------------------------------------------------------------\n");
+    printf("%-10s   %-15s   %-15s   %-6s   %-12s   %-10s   %-12s   %-12s\n", "Patente", "Marca", "Modelo", "Anio", "Tipo", "Capacidad", "Precio/Dia", "Estado");
+    printf("-------------------------------------------------------------------------------------------------------------------------\n");
     while (fread(&v, sizeof(vehiculo), 1, archivo) == 1) {
         char strEstado[15];
         if (v.estado == 1) strcpy(strEstado, "Disponible");
         else if (v.estado == 2) strcpy(strEstado, "Alquilado");
         else if (v.estado == 0) strcpy(strEstado, "Baja");
         else strcpy(strEstado, "Desconocido");
-        printf("%-10s %-12s %-12s %-6d %-10s %-10d $%-11.2f %-12s\n", v.patente, v.marca, v.modelo, v.anio, v.tipo, v.capacidad, v.precioPorDia, strEstado);
+        
+        // Usamos %.15s y %.12s para limitar los caracteres máximos y evitar que se rompa la tabla
+        printf("%-10s   %-15.15s   %-15.15s   %-6d   %-12.12s   %-10d   $%-11.2f   %-12s\n", 
+               v.patente, v.marca, v.modelo, v.anio, v.tipo, v.capacidad, v.precioPorDia, strEstado);
         contador++;
     }
-    printf("-----------------------------------------------------------------------------------------------------\n");
+    printf("---------------------------------------------------------------------------------------------------------------\n");
     if (contador == 0) printf("No hay vehiculos registrados en el sistema.\n");
     else printf("Total de vehiculos mostrados: %d\n", contador);
     fclose(archivo);
     return 1;
 }
-
 // Permite buscar un vehiculo por patente y modificar todos sus atributos (incluido estado: 1, 2 o 0)
 int modificarVehiculo(void) {
     char patenteBusq[15];
     int i;
-    printf("\n================================= MODIFICAR VEHICULO =================================\n");
+    printf("\n============================== MODIFICAR VEHICULO ==============================\n");
     while (1) {
         printf("Ingrese la patente del vehiculo a modificar (Formato AA000AA): ");
         if (fgets(patenteBusq, sizeof(patenteBusq), stdin) != NULL) patenteBusq[strcspn(patenteBusq, "\n")] = '\0';
@@ -253,80 +253,120 @@ int modificarVehiculo(void) {
             continue;
         }
         break;
-    }
+    }   
     FILE *archivo = fopen("vehiculos.dat", "rb+");
     if (archivo == NULL) {
         printf("\n[Error] No se pudo abrir el archivo de vehiculos (o aun no existen registros).\n");
         return 0;
-    }
+    }   
     vehiculo v;
     int encontrado = 0;
+    long posicionActual = 0;
     while (fread(&v, sizeof(vehiculo), 1, archivo) == 1) {
         if (strcmp(v.patente, patenteBusq) == 0) {
             encontrado = 1;
-            long posicionActual = ftell(archivo) - sizeof(vehiculo);
-            printf("\nVehiculo encontrado (%s). Ingrese los nuevos datos:\n", v.patente);
-            // Nueva Marca
-            do {
-                printf("Nueva marca (Actual: %s): ", v.marca);
-                if (fgets(v.marca, sizeof(v.marca), stdin) != NULL) v.marca[strcspn(v.marca, "\n")] = '\0';
-                if (esCadenaVaciaOEspacios(v.marca)) printf("[Error] La marca no puede estar vacia ni contener solo espacios.\n");
-                else if (!esSoloTextoValido(v.marca)) printf("[Error] La marca solo debe contener letras y espacios entre palabras.\n");
-            } while (esCadenaVaciaOEspacios(v.marca) || !esSoloTextoValido(v.marca));
-            // Nuevo Modelo
-            do {
-                printf("Nuevo modelo (Actual: %s): ", v.modelo);
-                if (fgets(v.modelo, sizeof(v.modelo), stdin) != NULL) v.modelo[strcspn(v.modelo, "\n")] = '\0';
-                if (esCadenaVaciaOEspacios(v.modelo)) printf("[Error] El modelo no puede estar vacio ni contener solo espacios.\n");
-                else if (!esSoloTextoValido(v.modelo)) printf("[Error] El modelo solo debe contener letras y espacios entre palabras.\n");
-            } while (esCadenaVaciaOEspacios(v.modelo) || !esSoloTextoValido(v.modelo));
-            // Nuevo Anio
-            printf("Nuevo anio (Actual: %d): ", v.anio);
-            v.anio = leerEnteroEnRango(1886, 2026, "[Error] Anio invalido. Ingrese un numero entero entre 1886 y 2026: ");
-            // Nuevo Tipo
-            do {
-                printf("Nuevo tipo de vehiculo (Actual: %s): ", v.tipo);
-                if (fgets(v.tipo, sizeof(v.tipo), stdin) != NULL) v.tipo[strcspn(v.tipo, "\n")] = '\0';
-                if (esCadenaVaciaOEspacios(v.tipo)) printf("[Error] El tipo no puede estar vacio ni contener solo espacios.\n");
-                else if (!esSoloTextoValido(v.tipo)) printf("[Error] El tipo solo debe contener letras y espacios.\n");
-            } while (esCadenaVaciaOEspacios(v.tipo) || !esSoloTextoValido(v.tipo));
-            // Nueva Capacidad
-            printf("Nueva capacidad (Actual: %d): ", v.capacidad);
-            v.capacidad = leerEnteroEnRango(1, 10, "[Error] Capacidad invalida. Ingrese un numero entero entre 1 y 10: ");
-            // Nuevo Precio por dia
-            char bufferPrecio[100];
-            float precioTemp;
-            while (1) {
-                printf("Nuevo precio por dia (Actual: %.2f): ", v.precioPorDia);
-                if (fgets(bufferPrecio, sizeof(bufferPrecio), stdin) != NULL) {
-                    bufferPrecio[strcspn(bufferPrecio, "\n")] = '\0';
-                    if (!esCadenaVaciaOEspacios(bufferPrecio)) {
-                        char basura;
-                        if (sscanf(bufferPrecio, "%f %c", &precioTemp, &basura) == 1 && precioTemp > 0) {
-                            v.precioPorDia = precioTemp;
-                            break;
-                        }
-                    }
-                }
-                printf("[Error] Precio invalido. Ingrese un valor numerico mayor a cero.\n");
-            }
-            // Nuevo Estado (Limitado estrictamente a 1: Disponible | 2: Alquilado | 0: Baja)
-            printf("Nuevo estado (1: Disponible | 2: Alquilado | 0: Baja) - Actual (%d): ", v.estado);
-            v.estado = leerEnteroEnRango(0, 2, "[Error] Estado invalido. Ingrese 1 (Disponible), 2 (Alquilado) o 0 (Baja): ");
-            // Sobreescribe el registro en la posicion correspondiente del archivo
-            fseek(archivo, posicionActual, SEEK_SET);
-            fwrite(&v, sizeof(vehiculo), 1, archivo);
-            fflush(archivo);
-            printf("\n[Exito] Vehiculo con patente %s modificado correctamente.\n", v.patente);
+            posicionActual = ftell(archivo) - sizeof(vehiculo);
             break;
         }
-    }
+    }   
+    if (!encontrado) {
+        fclose(archivo);
+        printf("\n[Error] No existe un vehiculo registrado con la patente %s.\n", patenteBusq);
+        return 0;
+    }   
+    int opcionMod;
+    do {
+        printf("\n--- DATOS ACTUALES DEL VEHICULO (%s) ---\n", v.patente);
+        printf("1. Marca: %s\n", v.marca);
+        printf("2. Modelo: %s\n", v.modelo);
+        printf("3. Anio: %d\n", v.anio);
+        printf("4. Tipo: %s\n", v.tipo);
+        printf("5. Capacidad: %d pasajeros\n", v.capacidad);
+        printf("6. Precio por dia: $%.2f\n", v.precioPorDia);
+        char strEstado[15];
+        if (v.estado == 1) strcpy(strEstado, "Disponible");
+        else if (v.estado == 2) strcpy(strEstado, "Alquilado");
+        else if (v.estado == 0) strcpy(strEstado, "Baja");
+        else strcpy(strEstado, "Desconocido");
+        printf("7. Estado: %s (%d)\n", strEstado, v.estado);
+        printf("0. Guardar cambios y volver\n");
+        printf("Seleccione una opcion a modificar: ");       
+        opcionMod = leerEnteroEnRango(0, 7, "[Error] Opcion invalida. Ingrese un numero entre 0 y 7: ");
+        switch (opcionMod) {
+            case 1:
+                do {
+                    printf("Ingrese la nueva marca: ");
+                    if (fgets(v.marca, sizeof(v.marca), stdin) != NULL) v.marca[strcspn(v.marca, "\n")] = '\0';
+                    if (esCadenaVaciaOEspacios(v.marca)) printf("[Error] La marca no puede estar vacia ni contener solo espacios.\n");
+                    else if (!esSoloTextoValido(v.marca)) printf("[Error] La marca solo debe contener letras y espacios entre palabras.\n");
+                } while (esCadenaVaciaOEspacios(v.marca) || !esSoloTextoValido(v.marca));
+                break;
+            case 2:
+                do {
+                    printf("Ingrese el nuevo modelo: ");
+                    if (fgets(v.modelo, sizeof(v.modelo), stdin) != NULL) v.modelo[strcspn(v.modelo, "\n")] = '\0';
+                    if (esCadenaVaciaOEspacios(v.modelo)) printf("[Error] El modelo no puede estar vacio ni contener solo espacios.\n");
+                    else if (!esSoloTextoValido(v.modelo)) printf("[Error] El modelo solo debe contener letras y espacios entre palabras.\n");
+                } while (esCadenaVaciaOEspacios(v.modelo) || !esSoloTextoValido(v.modelo));
+                break;
+            case 3:
+                printf("Ingrese el nuevo anio (1886 a 2026): ");
+                v.anio = leerEnteroEnRango(1886, 2026, "[Error] Anio invalido. Ingrese un numero entero entre 1886 y 2026: ");
+                break;
+            case 4:
+                do {
+                    printf("Ingrese el nuevo tipo de vehiculo (Auto, SUV, Camioneta): ");
+                    if (fgets(v.tipo, sizeof(v.tipo), stdin) != NULL) v.tipo[strcspn(v.tipo, "\n")] = '\0';
+                    if (esCadenaVaciaOEspacios(v.tipo)) printf("[Error] El tipo no puede estar vacio ni contener solo espacios.\n");
+                    else if (!esSoloTextoValido(v.tipo)) printf("[Error] El tipo solo debe contener letras y espacios.\n");
+                } while (esCadenaVaciaOEspacios(v.tipo) || !esSoloTextoValido(v.tipo));                
+                // Actualiza la capacidad automáticamente al modificar el tipo
+                if (strcasecmp(v.tipo, "Auto") == 0 || strcasecmp(v.tipo, "Camioneta") == 0) {
+                    v.capacidad = 5;
+                    printf("Capacidad actualizada automaticamente a %d pasajeros por el tipo %s.\n", v.capacidad, v.tipo);
+                } else if (strcasecmp(v.tipo, "SUV") == 0) {
+                    v.capacidad = 7;
+                    printf("Capacidad actualizada automaticamente a %d pasajeros por el tipo %s.\n", v.capacidad, v.tipo);
+                }
+                break;
+            case 5:
+                printf("Ingrese la nueva capacidad (1 a 10): ");
+                v.capacidad = leerEnteroEnRango(1, 10, "[Error] Capacidad invalida. Ingrese un numero entero entre 1 y 10: ");
+                break;
+            case 6: {
+                char bufferPrecio[100];
+                float precioTemp;
+                while (1) {
+                    printf("Ingrese el nuevo precio por dia: ");
+                    if (fgets(bufferPrecio, sizeof(bufferPrecio), stdin) != NULL) {
+                        bufferPrecio[strcspn(bufferPrecio, "\n")] = '\0';
+                        if (!esCadenaVaciaOEspacios(bufferPrecio)) {
+                            char basura;
+                            if (sscanf(bufferPrecio, "%f %c", &precioTemp, &basura) == 1 && precioTemp > 0) {
+                                v.precioPorDia = precioTemp;
+                                break;
+                            }
+                        }
+                    }
+                    printf("[Error] Precio invalido. Ingrese un valor numerico mayor a cero.\n");
+                }
+                break;
+            }
+            case 7:
+                printf("Ingrese el nuevo estado (1: Disponible | 2: Alquilado | 0: Baja): ");
+                v.estado = leerEnteroEnRango(0, 2, "[Error] Estado invalido. Ingrese 1 (Disponible), 2 (Alquilado) o 0 (Baja): ");
+                break;
+            case 0:
+                fseek(archivo, posicionActual, SEEK_SET);
+                fwrite(&v, sizeof(vehiculo), 1, archivo);
+                fflush(archivo);
+                printf("\n[Exito] Vehiculo con patente %s modificado correctamente.\n", v.patente);
+                break;
+        }
+    } while (opcionMod != 0);   
     fclose(archivo);
-    if (!encontrado) printf("\n[Error] No existe un vehiculo registrado con la patente %s.\n", patenteBusq);
     return 1;
 }
-
-// Mensaje de retorno al flujo principal
 void volverAlMenuPrincipal(void) {
     printf("\nRegresando al menu principal...\n");
 }
