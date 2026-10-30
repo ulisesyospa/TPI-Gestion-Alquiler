@@ -3,26 +3,31 @@
 #include <string.h>
 #include "clientes.h"
 #include "vehiculos.h"
+#include "alquileres.h"
+#include "devoluciones.h"
+#include "movimiento.h"
 #include "consultasReportes.h"
+// Punto de entrada principal del sistema de gestion de alquileres
 int main(){
     int opcion;
     char buffer[100];
     char basura;
     do{
-        printf("\n=====================================\n");
-        printf("SISTEMA DE ALQUILER DE VEHICULOS\n");
-        printf("=====================================\n");
-        printf("1.Clientes\n");
-        printf("2.Vehiculos\n");
-        printf("3.Alquileres\n");
-        printf("4.Devoluciones\n");
-        printf("5.Pagos\n");
-        printf("6.Consultas y Reportes\n");
-        printf("0.Salir\n");
-        printf("\nSeleccione una opcion: ");    
+        printf("\n========================================\n");
+        printf("    SISTEMA DE ALQUILER DE VEHICULOS    \n");
+        printf("========================================\n");
+        printf("1. Clientes\n");
+        printf("2. Vehiculos\n");
+        printf("3. Alquileres\n");
+        printf("4. Devoluciones\n");
+        printf("5. Pagos\n");
+        printf("6. Consultas y Reportes\n");
+        printf("0. Salir\n");
+        printf("----------------------------------------\n");
+        printf("Seleccione una opcion: ");    
         if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
             if (buffer[0] == '\n' || buffer[0] == '\r') {
-                printf("[Error] Debe ingresar una opcion valida.\n");
+                printf("[Aviso] Debe ingresar una opcion valida.\n");
                 opcion = -1;
                 continue;
             }
@@ -35,27 +40,27 @@ int main(){
         switch(opcion){
             case 1:
                 menuClientes();
-            break;
+                break;
             case 2:
                 menuVehiculos();
-            break;
+                break;
             case 3:
                 menuAlquileres();
-            break;
+                break;
             case 4:
                 menuDevoluciones();
-            break;
+                break;
             case 5:
                 menuPagos();
-            break;
+                break;
             case 6:
                 menuConsultasyReportes();
-            break;
+                break;
             case 0:
-                printf("Saliendo...\n");
-            break;
+                printf("\nSaliendo del sistema...\n");
+                break;
             default:
-                printf("Opcion incorrecta.\n");    
+                printf("[Error] Opcion invalida.\n");    
         }
     }while(opcion != 0);
     return 0;
