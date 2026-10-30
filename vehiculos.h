@@ -7,14 +7,13 @@ typedef struct {
     char tipo[30];
     int capacidad;
     float precioPorDia;
-    int estado;//1- disponible 2- no disponible
+    int estado; // 1- Disponible, 2- Alquilado, 3- En mantenimiento, 0- Baja
 } vehiculo;
 void menuVehiculos(void);
 void registrarVehiculo(void);
 int buscarVehiculo(char patente[]);
 int mostrarVehiculo(void);
 int modificarVehiculo(void);
-void volverAlMenuPrincipal(void);
 int esSoloTextoValido(const char *cadena);
 int esCadenaVaciaOEspacios(const char *cadena);
 int leerEnteroEnRango(int min, int max, const char *mensajeError);

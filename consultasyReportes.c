@@ -103,6 +103,7 @@ void vehiculosDisponibles(void){
             printf("Tipo: %s\n", v.tipo);
             printf("Capacidad: %d pasajeros\n", v.capacidad);
             printf("Precio por dia: $%.2f\n", v.precioPorDia);
+            printf("Estado: Disponible\n");
             printf("----------------------------------------\n");			
             contador = contador + 1;
         }
@@ -157,6 +158,7 @@ void vehiculosAlquilados(void){
                             printf("Cliente: %s (DNI: %d)\n", c.apellidoNombre, c.dni);
                             printf("Fecha Inicio: %02d/%02d/%04d\n", a.fecInicio.dia, a.fecInicio.mes, a.fecInicio.anio);
                             printf("Devolucion Prevista: %02d/%02d/%04d\n", a.fecPrevitaDevolucion.dia, a.fecPrevitaDevolucion.mes, a.fecPrevitaDevolucion.anio);
+                            printf("Estado: Alquilado\n");
                             printf("----------------------------------------\n");
                             contador++;
                             encontrado = 1;
@@ -755,6 +757,8 @@ void estadisticasEmpresa(void){
     int totalVehiculos = 0;
     int disponibles = 0;
     int alquilados = 0;
+    int enMantenimiento = 0;
+    int deBaja = 0;
     int totalAlquileres = 0;
     int alquileresActivos = 0;
     float totalCobrado = 0.0;
@@ -764,13 +768,17 @@ void estadisticasEmpresa(void){
         printf("[Error] No se pudo abrir el archivo de vehiculos.\n");
         return;
     }
-    // Conteo general de vehiculos y disponibilidad en flota
+    // Conteo general de vehiculos y disponibilidad en flota contemplando los 4 estados
     while(fread(&v, sizeof(vehiculo), 1, archivoV) == 1){
         totalVehiculos++;
         if(v.estado == 1){
             disponibles++;
         } else if(v.estado == 2){
             alquilados++;
+        } else if(v.estado == 3){
+            enMantenimiento++;
+        } else {
+            deBaja++;
         }
     }
     fclose(archivoV);
@@ -795,9 +803,11 @@ void estadisticasEmpresa(void){
     printf("\n========================================\n");
     printf("       ESTADISTICAS DE LA EMPRESA       \n");
     printf("========================================\n");
-    printf("Cantidad total de vehiculos: %d\n", totalVehiculos);
-    printf("Vehiculos disponibles: %d\n", disponibles);
-    printf("Vehiculos alquilados: %d\n", alquilados);
+    printf("Cantidad total de vehiculos en sistema: %d\n", totalVehiculos);
+    printf(" Disponibles: %d\n", disponibles);
+    printf(" Alquilados: %d\n", alquilados);
+    printf(" En Mantenimiento: %d\n", enMantenimiento);
+    printf(" Dados de Baja: %d\n", deBaja);
     printf("----------------------------------------\n");
     printf("Cantidad total de alquileres: %d\n", totalAlquileres);
     printf("Cantidad de alquileres activos: %d\n", alquileresActivos);
