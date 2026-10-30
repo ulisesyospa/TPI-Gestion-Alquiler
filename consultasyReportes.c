@@ -849,59 +849,42 @@ void estadisticasEmpresa(void){
     int alquilados = 0;
     int totalAlquileres = 0;
     int alquileresActivos = 0;
-    float totalCobrado = 0;
-    float totalPendiente = 0;
+    float totalCobrado = 0.0f;
+    float totalPendiente = 0.0f;
     archivoV = fopen("vehiculos.dat", "rb");
     if(archivoV == NULL){
         printf("[Error] No se pudo abrir vehiculos.dat\n");
         return;
     }
-    while(fread(&v, sizeof(vehiculo), 1, archivoV) == 1){
-
-        totalVehiculos++;
+    // Se cuentan los vehiculos y sus estados
     while(fread(&v, sizeof(vehiculo), 1, archivoV) == 1){
         totalVehiculos++;
         if(v.estado == 1){
             disponibles++;
-        }else if(v.estado == 2){
+        } else if(v.estado == 2){
             alquilados++;
         }
     }
-    fclose(archivoV);
-    archivoA = fopen("alquileres.dat", "rb");
     fclose(archivoV);
     archivoA = fopen("alquileres.dat", "rb");
     if(archivoA == NULL){
         printf("[Error] No se pudo abrir alquileres.dat\n");
         return;
     }
+    // Se cuentan los alquileres, montos cobrados y pendientes
     while(fread(&a, sizeof(alquiler), 1, archivoA) == 1){
         totalAlquileres++;
         if(a.estado == 1){
             alquileresActivos++;
         }
         totalCobrado += a.importePagado;
-        totalPendiente += a.importeTotal - a.importePagado;
-    }
-    fclose(archivoA);
-    printf("\n===== ESTADISTICAS DE LA EMPRESA =====\n");
-    printf("Cantidad total de vehiculos: %d\n", totalVehiculos);
-    printf("Vehiculos disponibles: %d\n", disponibles);
-    printf("Vehiculos alquilados: %d\n", alquilados);
-    printf("Cantidad total de alquileres: %d\n", totalAlquileres);
-    printf("Cantidad de alquileres activos: %d\n", alquileresActivos);
-    printf("Importe total cobrado: $%.2f\n", totalCobrado);
-    printf("Importe total pendiente de cobro: $%.2f\n", totalPendiente);
-}
-    while(fread(&a, sizeof(alquiler), 1, archivoA) == 1){
-        totalAlquileres++;
-        if(a.estado == 1){
-            alquileresActivos++;
+        // Solo sumamos a saldo pendiente los alquileres no cancelados (estado != 0)
+        if(a.estado != 0){
+            totalPendiente += (a.importeTotal - a.importePagado);
         }
-        totalCobrado += a.importePagado;
-        totalPendiente += a.importeTotal - a.importePagado;
     }
     fclose(archivoA);
+    // Se muestran las estadisticas generales
     printf("\n================================= ESTADISTICAS DE LA EMPRESA =================================\n");
     printf("Cantidad total de vehiculos: %d\n", totalVehiculos);
     printf("Vehiculos disponibles: %d\n", disponibles);
