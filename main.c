@@ -7,7 +7,6 @@
 #include "devoluciones.h"
 #include "movimiento.h"
 #include "consultasReportes.h"
-// Punto de entrada principal del sistema de gestion de alquileres
 int main(){
     int opcion;
     char buffer[100];
