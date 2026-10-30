@@ -1,1 +1,0 @@
-Movimiento Nro: 1 | Alquiler: 7 | Tipo: Pago | Monto: 900.00 | Fecha: 15/10/2026 | Patente: aa000aa
