@@ -12,17 +12,17 @@ static int leerEnteroPositivo(const char *mensaje) {
         printf("%s", mensaje);
         if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
             if (buffer[0] == '\n' || buffer[0] == '\r') {
-                printf("[Aviso] No ingreso ningun dato. Por favor, ingrese un Alquiler.\n\n");
+                printf("[Aviso] No ingreso ningun dato. Por favor, ingrese un valor valido.\n\n");
                 continue;
             }
             if (sscanf(buffer, " %d %c", &numero, &basura) == 1) {
                 if (numero > 0) {
                     return numero;
                 } else {
-                    printf("[Error] El número debe ser un entero positivo mayor a 0.\n\n");
+                    printf("[Error] El numero debe ser un entero positivo mayor a 0.\n\n");
                 }
             } else {
-                printf("[Error] Entrada inválida. Debe ingresar estrictamente un numero (sin letras ni espacios).\n\n");
+                printf("[Error] Entrada invalida. Debe ingresar estrictamente un numero.\n\n");
             }
         }
     }
@@ -32,9 +32,12 @@ void menuPagos(void){
 	char buffer[100];
 	char basura;
 	do{
-		printf("\================================= MENU PAGOS Y MOVIMIENTOS =================================\n");
+		printf("\n========================================\n");
+		printf("       MENU PAGOS Y MOVIMIENTOS         \n");
+		printf("========================================\n");
 		printf("1. Registrar pago\n");
 		printf("0. Volver al menu principal\n");
+		printf("----------------------------------------\n");
 		printf("Seleccione una opcion: ");
 		if(fgets(buffer, sizeof(buffer), stdin) == NULL){
 			continue;
@@ -45,7 +48,7 @@ void menuPagos(void){
 			continue;
 		}
 		if(sscanf(buffer, " %d %c", &opcion, &basura) != 1){
-			printf("Opcion invalida. Ingrese solo un numero.\n");
+			printf("[Error] Opcion invalida. Ingrese solo un numero.\n");
 			opcion = -1;
 			continue;
 		}
@@ -54,10 +57,10 @@ void menuPagos(void){
 				registrarPago();
 				break;
 			case 0:
-				printf("Regresando al menu principal...\n");
+				printf("\nRegresando al menu principal...\n");
 				break;
 			default:
-				printf("Opcion invalida.\n");
+				printf("[Error] Opcion invalida.\n");
 		}
 	}while(opcion != 0);
 }
@@ -117,29 +120,33 @@ void registrarPago(void){
 	int nroAlq;
 	float montoPago;
 	fecha fecPago;
-	printf("\n================================= REGISTRAR PAGO =================================\n");
+	printf("\n========================================\n");
+	printf("            REGISTRAR PAGO              \n");
+	printf("========================================\n");
 	FILE *fAlq = fopen("alquileres.dat", "rb+");
 	if(fAlq == NULL){
 		printf("\n[Error] No se pudo abrir el archivo de alquileres.\n");
 		return;
 	}
 	alquiler a;
-	int contadorActivos = 0;
-	printf("\n--------------------------------- ALQUILERES ACTIVOS DISPONIBLES ---------------------------------\n");
+	int contadorPendientes = 0;
+	printf("\n--- ALQUILERES CON SALDO PENDIENTE ---\n");
 	while(fread(&a, sizeof(alquiler), 1, fAlq) == 1){
 		if(a.estado == 1){
 			float saldo = a.importeTotal - a.importePagado;
-			printf("Nro Alquiler: %d | DNI: %d | Patente: %s | Saldo Restante: $%.2f\n", 
-			       a.nroAlquiler, a.dniCliente, a.patenteVehiculo, saldo);
-			contadorActivos++;
+			if(saldo > 0.005f){
+				printf("Nro: %d | DNI: %d | Patente: %s | Saldo: $%.2f\n", 
+				       a.nroAlquiler, a.dniCliente, a.patenteVehiculo, saldo);
+				contadorPendientes++;
+			}
 		}
 	}
-	if(contadorActivos == 0){
-		printf("[Aviso] No hay alquileres activos registrados en el sistema.\n");
+	if(contadorPendientes == 0){
+		printf("[Aviso] No hay alquileres con saldo pendiente de pago.\n");
 		fclose(fAlq);
 		return;
 	}
-	printf("--------------------------------------------------------------------------------------------------------\n");
+	printf("----------------------------------------\n");
 	nroAlq = leerEnteroPositivo("Ingrese numero de alquiler a abonar: ");
 	rewind(fAlq);
 	int encontrado = 0;
