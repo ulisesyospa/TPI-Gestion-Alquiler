@@ -6,6 +6,7 @@
 #include "alquileres.h"
 #include "vehiculos.h"
 #include "movimiento.h"
+// Solicita un entero mayor a cero utilizando lectura por buffer para prevenir colapsos por entrada invalida
 int verificacionEntero(const char *mensaje) {
     char buffer[100];
     char basura;
@@ -21,14 +22,15 @@ int verificacionEntero(const char *mensaje) {
                 if (numero > 0) {
                     return numero;
                 } else {
-                    printf("[Error] El número debe ser un entero positivo mayor a 0.\n\n");
+                    printf("[Error] El numero debe ser un entero positivo mayor a 0.\n\n");
                 }
             } else {
-                printf("[Error] Entrada inválida. Debe ingresar estrictamente un numero (sin letras ni espacios).\n\n");
+                printf("[Error] Entrada invalida. Debe ingresar estrictamente un numero (sin letras ni espacios).\n\n");
             }
         }
     }
 }
+// Valida que la patente ingresada tenga 7 caracteres alfanumericos y convierte las letras a mayusculas
 void patenteValida(char *destino, int tamano, const char *mensaje) {
     char buffer[100];
     int i;
@@ -66,6 +68,7 @@ void patenteValida(char *destino, int tamano, const char *mensaje) {
         }
     }
 }
+// Comprueba si una fecha representada por dia, mes y anio existe en el calendario
 int fechaValida(int dia, int mes, int anio){
     struct tm fecha = {0};
     fecha.tm_mday = dia;
@@ -73,18 +76,17 @@ int fechaValida(int dia, int mes, int anio){
     fecha.tm_year = anio - 1900;
     struct tm copia = fecha;
     time_t controlFecha = mktime(&copia);
-    if(controlFecha == -1 ||
-       copia.tm_mday != dia ||
-       copia.tm_mon != mes - 1 ||
-       copia.tm_year != anio - 1900){
+    if(controlFecha == -1 || copia.tm_mday != dia || copia.tm_mon != mes - 1 || copia.tm_year != anio - 1900){
         return 0;
     }
     return 1;
 }
+// Vacía caracteres pendientes del buffer de entrada en lecturas directas
 void limpiarBuffer(void){
     int c;
     while((c = getchar()) != '\n' && c != EOF);
 }
+// Obtiene el identificador autoincremental para el nuevo contrato leyendo el archivo binario
 int generarNumeroAlquiler(void){
     FILE *archivo = fopen("alquileres.dat", "rb");
     if(archivo == NULL){
@@ -100,15 +102,19 @@ int generarNumeroAlquiler(void){
     fclose(archivo);
     return mayor + 1;
 }
+// Menu interactivo para las operaciones del modulo de alquileres
 void menuAlquileres(void){
     int opcion;
     char buffer[100];
     char basura;
     do{
-        printf("\n================================= MENU ALQUILERES =================================\n");
+        printf("\n========================================\n");
+        printf("            MENU ALQUILERES             \n");
+        printf("========================================\n");
         printf("1. Realizar alquiler\n");
         printf("2. Listar alquileres\n");
         printf("0. Volver al menu principal\n");
+        printf("----------------------------------------\n");
         printf("Seleccione una opcion: ");
         if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
             if (buffer[0] == '\n' || buffer[0] == '\r') {
@@ -129,18 +135,21 @@ void menuAlquileres(void){
                 listarAlquileres();
                 break;
             case 0:
-                printf("Regresando al menu principal...\n");
+                printf("\nRegresando al menu principal...\n");
                 break;
             default:
-                printf("Opcion invalida.\n");
+                printf("[Error] Opcion invalida.\n");
         }
     }while(opcion != 0);
 }
+// Procesa un nuevo alquiler asociando cliente, vehiculo, periodo de dias y calculo de importe
 void realizarAlquiler(void){
     alquiler nuevo;
     char bufferFecha[100];
     char basuraFecha;
-    printf("\n================================= REALIZAR ALQUILER =================================\n");
+    printf("\n========================================\n");
+    printf("           REALIZAR ALQUILER            \n");
+    printf("========================================\n");
     nuevo.nroAlquiler = generarNumeroAlquiler();
     printf("Numero de alquiler asignado: %d\n", nuevo.nroAlquiler);
     nuevo.dniCliente = verificacionEntero("Ingrese DNI del cliente: ");
@@ -155,10 +164,10 @@ void realizarAlquiler(void){
     }
     vehiculo v;
     int contadorDisponibles = 0;
-    printf("\n--------------------------------- VEHICULOS DISPONIBLES ---------------------------------\n");
+    printf("\n--- VEHICULOS DISPONIBLES EN FLOTA ---\n");
     while(fread(&v, sizeof(vehiculo), 1, fVeh) == 1){
         if(v.estado == 1){
-            printf("Patente: %s | Marca/Modelo: %s\t | Precio por dia: $%.2f\t\n", v.patente, v.modelo, v.precioPorDia);
+            printf("Patente: %s | Marca/Modelo: %s %s | Precio por dia: $%.2f\n", v.patente, v.marca, v.modelo, v.precioPorDia);
             contadorDisponibles++;
         }
     }
@@ -167,7 +176,7 @@ void realizarAlquiler(void){
         fclose(fVeh);
         return;
     }
-    printf("-----------------------------------------------------------------------------------------\n");
+    printf("----------------------------------------\n");
     patenteValida(nuevo.patenteVehiculo, sizeof(nuevo.patenteVehiculo), "Ingrese la patente del vehiculo a alquilar: ");
     int vehiculoEncontrado = 0;
     float precioPorDia = 0.0;
@@ -188,7 +197,7 @@ void realizarAlquiler(void){
         }
     }
     if(!vehiculoEncontrado){
-        printf("[Error] No existe un vehiculo con esa patente.\n");
+        printf("[Error] No existe un vehiculo registrado con esa patente.\n");
         fclose(fVeh);
         return;
     }
@@ -196,6 +205,7 @@ void realizarAlquiler(void){
     time_t tActual = time(NULL);
     struct tm *infoActual = localtime(&tActual);
     int anioActual = infoActual->tm_year + 1900;
+    // Bucle de lectura y validacion de las fechas del contrato
     do{
         printf("Ingrese fecha de inicio (DD/MM/AAAA): ");
         if(fgets(bufferFecha, sizeof(bufferFecha), stdin) == NULL){
@@ -210,7 +220,7 @@ void realizarAlquiler(void){
         if(leidosInicio != 3){
             printf("[Error] Formato invalido o caracteres extra. Use DD/MM/AAAA.\n\n");
         }else if(fechaValida(nuevo.fecInicio.dia, nuevo.fecInicio.mes, nuevo.fecInicio.anio) == 0){
-            printf("[Error] La fecha de inicio no existe.\n\n");
+            printf("[Error] La fecha de inicio no existe en el calendario.\n\n");
         }else{
             struct tm inicio = {0};
             inicio.tm_mday = nuevo.fecInicio.dia;
@@ -237,7 +247,7 @@ void realizarAlquiler(void){
                     if(leidosDev != 3){
                         printf("[Error] Formato invalido o caracteres extra. Use DD/MM/AAAA.\n\n");
                     }else if(fechaValida(nuevo.fecPrevitaDevolucion.dia, nuevo.fecPrevitaDevolucion.mes, nuevo.fecPrevitaDevolucion.anio) == 0){
-                        printf("[Error] La fecha de devolucion no existe.\n\n");
+                        printf("[Error] La fecha de devolucion no existe en el calendario.\n\n");
                     }else{
                         struct tm devolucion = {0};
                         devolucion.tm_mday = nuevo.fecPrevitaDevolucion.dia;
@@ -265,16 +275,15 @@ void realizarAlquiler(void){
     devolucion.tm_year = nuevo.fecPrevitaDevolucion.anio - 1900;
     time_t fechaInicio = mktime(&inicio);
     time_t fechaDevolucion = mktime(&devolucion);
-    nuevo.cantidadDias = (int)(difftime(fechaDevolucion, fechaInicio) / (60 * 60 * 24));
-    printf("Cantidad de dias calculada: %d\n", nuevo.cantidadDias);
+    nuevo.cantidadDias = (int)(difftime(fechaDevolucion, fechaInicio) / 86400.0);
     nuevo.importeTotal = precioPorDia * nuevo.cantidadDias;
     if(nuevo.importeTotal <= 0){
         printf("[Error] El importe total calculado no es valido (debe ser mayor a 0).\n");
         fclose(fVeh);
         return;
     }
-    nuevo.importePagado = 0.0;
-    nuevo.estado = 1;
+    nuevo.importePagado = 0;
+    nuevo.estado = 1; // Alquiler activo
     FILE *fAlq = fopen("alquileres.dat", "ab");
     if(fAlq == NULL){
         printf("[Error] No se pudo abrir el archivo de alquileres.\n");
@@ -283,16 +292,18 @@ void realizarAlquiler(void){
     }
     fwrite(&nuevo, sizeof(alquiler), 1, fAlq);
     fclose(fAlq);
+    // Cambia el estado del vehiculo a Alquilado (2)
     v.estado = 2;
     fseek(fVeh, posVehiculo, SEEK_SET);
     fwrite(&v, sizeof(vehiculo), 1, fVeh);
     fflush(fVeh);
     fclose(fVeh);
-    printf("[Exito] Alquiler registrado correctamente.\n");
+    printf("\n[Exito] Alquiler registrado correctamente.\n");
     printf("Numero de alquiler: %d\n", nuevo.nroAlquiler);
     printf("Cantidad de dias: %d\n", nuevo.cantidadDias);
     printf("Importe total: $%.2f\n", nuevo.importeTotal);
 }
+// Muestra el listado general de contratos guardados en alquileres.dat
 void listarAlquileres(void){
     FILE *archivo = fopen("alquileres.dat", "rb");
     if(archivo == NULL){
@@ -301,17 +312,14 @@ void listarAlquileres(void){
     }
     alquiler a;
     int contador = 0;
-    printf("\n================================= LISTADO DE ALQUILERES =================================\n");
+    printf("\n========================================\n");
+    printf("         LISTADO DE ALQUILERES          \n");
+    printf("========================================\n");
     while(fread(&a, sizeof(alquiler), 1, archivo) == 1){
-        printf("\nNro Alquiler: %d | DNI Cliente: %d | Patente: %s\n",
-               a.nroAlquiler, a.dniCliente, a.patenteVehiculo);
+        printf("Nro Alquiler: %d | DNI Cliente: %d | Patente: %s\n", a.nroAlquiler, a.dniCliente, a.patenteVehiculo);
         printf("Inicio: %02d/%02d/%d | Prevista Devolucion: %02d/%02d/%d\n",
-               a.fecInicio.dia,
-               a.fecInicio.mes,
-               a.fecInicio.anio,
-               a.fecPrevitaDevolucion.dia,
-               a.fecPrevitaDevolucion.mes,
-               a.fecPrevitaDevolucion.anio);
+               a.fecInicio.dia, a.fecInicio.mes, a.fecInicio.anio,
+               a.fecPrevitaDevolucion.dia, a.fecPrevitaDevolucion.mes, a.fecPrevitaDevolucion.anio);
         char estadoStr[20];
         if(a.estado == 1){
             strcpy(estadoStr, "Activo");
@@ -320,16 +328,15 @@ void listarAlquileres(void){
         }else{
             strcpy(estadoStr, "Cancelado");
         }
-        printf("Dias: %d | Importe Total: %.2f | Pagado: $%.2f | Estado: %s\n",
-               a.cantidadDias,
-               a.importeTotal,
-               a.importePagado,
-               estadoStr);
+        printf("Dias: %d | Importe Total: $%.2f | Pagado: $%.2f | Estado: %s\n",
+               a.cantidadDias, a.importeTotal, a.importePagado, estadoStr);
+        printf("----------------------------------------\n");
         contador = contador + 1;
     }
-    printf("\n\nCantidas de Alquileres: %d\n", contador);
     fclose(archivo);
     if(contador == 0){
-        printf("No hay alquileres registrados en el sistema.\n");
+        printf("[Aviso] No hay alquileres registrados en el sistema.\n");
+    }else{
+        printf("Cantidad total de alquileres: %d\n", contador);
     }
 }
