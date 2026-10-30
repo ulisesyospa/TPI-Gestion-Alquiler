@@ -12,7 +12,7 @@ int main(){
     char buffer[100];
     char basura;
     do{
-        printf("\n========================================\n");
+        printf("\========================================\n");
         printf("    SISTEMA DE ALQUILER DE VEHICULOS    \n");
         printf("========================================\n");
         printf("1. Clientes\n");

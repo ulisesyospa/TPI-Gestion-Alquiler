@@ -17,3 +17,4 @@ int modificarVehiculo(void);
 int esSoloTextoValido(const char *cadena);
 int esCadenaVaciaOEspacios(const char *cadena);
 int leerEnteroEnRango(int min, int max, const char *mensajeError);
+

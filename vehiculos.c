@@ -197,7 +197,6 @@ void registrarVehiculo(void) {
     printf("1. Auto (Capacidad: 5 pasajeros)\n");
     printf("2. Camioneta (Capacidad: 5 pasajeros)\n");
     printf("3. SUV (Capacidad: 7 pasajeros)\n");
-    printf("4. Otros (Ingreso manual de capacidad)\n");
     printf("Seleccione tipo: ");
     tipoOpcion = leerEnteroEnRango(1, 4, "[Error] Opcion invalida. Ingrese entre 1 y 4: ");
 
@@ -210,10 +209,6 @@ void registrarVehiculo(void) {
     } else if (tipoOpcion == 3) {
         strcpy(v.tipo, "SUV");
         v.capacidad = 7;
-    } else {
-        strcpy(v.tipo, "Otros");
-        printf("Ingrese capacidad de pasajeros (1 a 20): ");
-        v.capacidad = leerEnteroEnRango(1, 20, "[Error] Capacidad invalida. Ingrese un valor entre 1 y 20: ");
     }
 
     // Lectura del precio de alquiler por dia
@@ -296,40 +291,66 @@ int modificarVehiculo(void) {
     int opcion;
     char buffer[100];
     char basura;
-
     printf("\n========================================\n");
     printf("           MODIFICAR VEHICULO           \n");
     printf("========================================\n");
-    printf("Ingrese la patente del vehiculo a modificar: ");
-
-    if (fgets(patenteBusqueda, sizeof(patenteBusqueda), stdin) == NULL) return 0;
-    patenteBusqueda[strcspn(patenteBusqueda, "\n")] = '\0';
-
-    archivo = fopen("vehiculos.dat", "r+b");
+    archivo = fopen("vehiculos.dat", "rb");
     if (archivo == NULL) {
-        printf("[Error] No se pudo abrir el archivo de vehiculos.\n");
+        printf("[Error] No se pudo abrir el archivo de vehiculos o aun no hay registros.\n");
         return 0;
     }
-
+    int contadorVehiculos = 0;
+    printf("\n--- VEHICULOS REGISTRADOS (PATENTES) ---\n");
     while (fread(&v, sizeof(vehiculo), 1, archivo) == 1) {
-        if (strcasecmp(v.patente, patenteBusqueda) == 0) {
-            encontrado = 1;
-            posicion = ftell(archivo) - sizeof(vehiculo);
-            break;
-        }
+        printf("Patente: %s | Marca: %s | Modelo: %s\n", v.patente, v.marca, v.modelo);
+        contadorVehiculos++;
     }
-
-    if (!encontrado) {
-        printf("[Error] No se encontro un vehiculo con la patente %s.\n", patenteBusqueda);
-        fclose(archivo);
+    fclose(archivo);
+    if (contadorVehiculos == 0) {
+        printf("[Aviso] No hay vehiculos registrados en el sistema para modificar.\n");
         return 0;
     }
-
+    printf("----------------------------------------\n");
+    while (1) {
+        printf("Ingrese la patente del vehiculo a modificar (7 caracteres): ");
+        if (fgets(patenteBusqueda, sizeof(patenteBusqueda), stdin) == NULL) continue;
+        patenteBusqueda[strcspn(patenteBusqueda, "\n")] = '\0';
+        if (esCadenaVaciaOEspacios(patenteBusqueda)) {
+            printf("[Error] La patente no puede estar vacia.\n");
+            continue;
+        }
+        int i;
+        for (i = 0; patenteBusqueda[i] != '\0'; i++) {
+            patenteBusqueda[i] = toupper((unsigned char)patenteBusqueda[i]);
+        }
+        if (strlen(patenteBusqueda) != 7) {
+            printf("[Error] La patente debe tener exactamente 7 caracteres. Intente nuevamente.\n");
+            continue;
+        }
+        archivo = fopen("vehiculos.dat", "r+b");
+        if (archivo == NULL) {
+            printf("[Error] No se pudo abrir el archivo de vehiculos.\n");
+            return 0;
+        }
+        encontrado = 0;
+        while (fread(&v, sizeof(vehiculo), 1, archivo) == 1) {
+            if (strcasecmp(v.patente, patenteBusqueda) == 0) {
+                encontrado = 1;
+                posicion = ftell(archivo) - sizeof(vehiculo);
+                break;
+            }
+        }
+        if (!encontrado) {
+            printf("[Error] No se encontro un vehiculo registrado con la patente %s. Intente nuevamente.\n\n", patenteBusqueda);
+            fclose(archivo);
+            continue;
+        }
+        break;
+    }
     do {
         printf("\n--- DATOS ACTUALES ---\n");
         printf("Patente: %s | Marca/Modelo: %s %s\n", v.patente, v.marca, v.modelo);
         printf("Anio: %d | Tipo: %s | Capacidad: %d | Precio/Dia: $%.2f\n", v.anio, v.tipo, v.capacidad, v.precioPorDia);
-        
         char estStr[25];
         if (v.estado == 1) {
             strcpy(estStr, "Disponible");
@@ -341,7 +362,6 @@ int modificarVehiculo(void) {
             strcpy(estStr, "Baja");
         }
         printf("Estado Actual: %s\n", estStr);
-
         printf("\n--- OPCIONES DE MODIFICACION ---\n");
         printf("1. Modificar Marca\n");
         printf("2. Modificar Modelo\n");
@@ -352,7 +372,6 @@ int modificarVehiculo(void) {
         printf("0. Guardar cambios y volver\n");
         printf("----------------------------------------\n");
         printf("Seleccione una opcion: ");
-
         if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
             if (buffer[0] == '\n' || buffer[0] == '\r') {
                 opcion = -1;
@@ -364,7 +383,6 @@ int modificarVehiculo(void) {
                 continue;
             }
         }
-
         switch (opcion) {
             case 1:
                 while (1) {
@@ -454,7 +472,6 @@ int modificarVehiculo(void) {
                 printf("[Error] Opcion invalida.\n");
         }
     } while (opcion != 0);
-
     fclose(archivo);
     return 1;
 }

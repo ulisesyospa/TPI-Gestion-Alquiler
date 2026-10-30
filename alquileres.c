@@ -147,15 +147,39 @@ void realizarAlquiler(void){
     alquiler nuevo;
     char bufferFecha[100];
     char basuraFecha;
+    char bufferDni[100];
+    char basuraDni;
+    int dniIngresado;
     printf("\n========================================\n");
     printf("           REALIZAR ALQUILER            \n");
     printf("========================================\n");
     nuevo.nroAlquiler = generarNumeroAlquiler();
     printf("Numero de alquiler asignado: %d\n", nuevo.nroAlquiler);
-    nuevo.dniCliente = verificacionEntero("Ingrese DNI del cliente: ");
-    if(buscarCliente(nuevo.dniCliente) == 0){
-        printf("[Error] El DNI ingresado no esta registrado en el sistema de clientes.\n");
-        return;
+    while(1) {
+        printf("Ingrese DNI del cliente (exactamente 8 digitos, o 0 para volver): ");
+        if(fgets(bufferDni, sizeof(bufferDni), stdin) == NULL) continue;
+        bufferDni[strcspn(bufferDni, "\n")] = '\0';
+        if(bufferDni[0] == '\0'){
+            printf("[Aviso] No ingreso ningun dato.\n");
+            continue;
+        }
+        if(sscanf(bufferDni, " %d %c", &dniIngresado, &basuraDni) != 1){
+            printf("[Error] Entrada invalida. Ingrese solo numeros.\n");
+            continue;
+        }
+        if(dniIngresado == 0){
+            return;
+        }
+        if(dniIngresado < 10000000 || dniIngresado > 99999999){
+            printf("[Error] DNI invalido. Debe tener exactamente 8 digitos numericos.\n");
+            continue;
+        }
+        if(buscarCliente(dniIngresado) == 0){
+            printf("[Error] El DNI ingresado no esta registrado en el sistema de clientes. Intente nuevamente.\n");
+            continue;
+        }
+        nuevo.dniCliente = dniIngresado;
+        break;
     }
     FILE *fVeh = fopen("vehiculos.dat", "rb+");
     if(fVeh == NULL){
@@ -177,35 +201,35 @@ void realizarAlquiler(void){
         return;
     }
     printf("----------------------------------------\n");
-    patenteValida(nuevo.patenteVehiculo, sizeof(nuevo.patenteVehiculo), "Ingrese la patente del vehiculo a alquilar: ");
+    
+    // Bucle para permitir reintentar la patente si hay errores o no existe
     int vehiculoEncontrado = 0;
     float precioPorDia = 0.0;
     long posVehiculo = 0;
-    rewind(fVeh);
-    while(fread(&v, sizeof(vehiculo), 1, fVeh) == 1){
-        if(strcasecmp(v.patente, nuevo.patenteVehiculo) == 0){
-            vehiculoEncontrado = 1;
-            if(v.estado == 1){
-                precioPorDia = v.precioPorDia;
-                posVehiculo = ftell(fVeh) - sizeof(vehiculo);
-            }else{
-                printf("[Error] El vehiculo seleccionado no se encuentra disponible.\n");
-                fclose(fVeh);
-                return;
+    while(!vehiculoEncontrado){
+        patenteValida(nuevo.patenteVehiculo, sizeof(nuevo.patenteVehiculo), "Ingrese la patente del vehiculo a alquilar: ");
+        rewind(fVeh);
+        while(fread(&v, sizeof(vehiculo), 1, fVeh) == 1){
+            if(strcasecmp(v.patente, nuevo.patenteVehiculo) == 0){
+                if(v.estado == 1){
+                    vehiculoEncontrado = 1;
+                    precioPorDia = v.precioPorDia;
+                    posVehiculo = ftell(fVeh) - sizeof(vehiculo);
+                }else{
+                    printf("[Error] El vehiculo seleccionado no se encuentra disponible.\n");
+                }
+                break;
             }
-            break;
+        }
+        if(!vehiculoEncontrado){
+            printf("[Error] No existe un vehiculo registrado con esa patente o esta ocupado. Intente nuevamente.\n");
         }
     }
-    if(!vehiculoEncontrado){
-        printf("[Error] No existe un vehiculo registrado con esa patente.\n");
-        fclose(fVeh);
-        return;
-    }
+    
     int fechasCorrectas = 0;
     time_t tActual = time(NULL);
     struct tm *infoActual = localtime(&tActual);
     int anioActual = infoActual->tm_year + 1900;
-    // Bucle de lectura y validacion de las fechas del contrato
     do{
         printf("Ingrese fecha de inicio (DD/MM/AAAA): ");
         if(fgets(bufferFecha, sizeof(bufferFecha), stdin) == NULL){
@@ -283,7 +307,7 @@ void realizarAlquiler(void){
         return;
     }
     nuevo.importePagado = 0;
-    nuevo.estado = 1; // Alquiler activo
+    nuevo.estado = 1;
     FILE *fAlq = fopen("alquileres.dat", "ab");
     if(fAlq == NULL){
         printf("[Error] No se pudo abrir el archivo de alquileres.\n");
@@ -292,7 +316,6 @@ void realizarAlquiler(void){
     }
     fwrite(&nuevo, sizeof(alquiler), 1, fAlq);
     fclose(fAlq);
-    // Cambia el estado del vehiculo a Alquilado (2)
     v.estado = 2;
     fseek(fVeh, posVehiculo, SEEK_SET);
     fwrite(&v, sizeof(vehiculo), 1, fVeh);

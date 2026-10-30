@@ -263,50 +263,60 @@ void consultarCliente(void){
     int dni;
     int encontrado = 0;
     char buffer[100];
-    char basura;	
+    char basura;    
     printf("\n========================================\n");
     printf("             BUSCAR CLIENTE             \n");
     printf("========================================\n");
-    printf("Ingrese el DNI: ");
     while (1) {
+        printf("Ingrese el DNI (exactamente 8 digitos, o ingrese 0 para volver): ");
         if (fgets(buffer, sizeof(buffer), stdin) == NULL) continue;
         buffer[strcspn(buffer, "\n")] = '\0';
         if (buffer[0] == '\0') {
-            printf("[Aviso] No ingreso ningun dato. Ingrese DNI: ");
+            printf("[Aviso] No ingreso ningun dato.\n");
             continue;
         }
-        if (sscanf(buffer, " %d %c", &dni, &basura) == 1 && dni > 0) {
+        if (sscanf(buffer, " %d %c", &dni, &basura) != 1) {
+            printf("[Error] Entrada invalida. Ingrese solo numeros.\n");
+            continue;
+        }
+        if (dni == 0) {
+            return;
+        }
+        if (dni < 10000000 || dni > 99999999) {
+            printf("[Error] DNI invalido. Debe tener exactamente 8 digitos numericos.\n");
+            continue;
+        }
+        archivo = fopen("clientes.dat", "rb");
+        if(archivo == NULL){
+            printf("[Error] No se pudo abrir el archivo de clientes o aun no hay registros.\n");
+            return;
+        }    
+        encontrado = 0;
+        while(fread(&c, sizeof(cliente), 1, archivo) == 1){
+            if(c.dni == dni){
+                encontrado = 1;
+                break;
+            }
+        }    
+        fclose(archivo);
+        if(encontrado == 1){    
+            printf("\n--- DATOS DEL CLIENTE ---\n");
+            printf("DNI: %d\n", c.dni);
+            printf("Apellido y Nombre: %s\n", c.apellidoNombre);
+            printf("Telefono: %s\n", c.telefono);
+            printf("E-mail: %s\n", c.email);
+            printf("Direccion: %s\n", c.direccion);
+            printf("Fecha de alta: %s\n", c.fechaAlta);        
+            if(c.estado == 1){
+                printf("Estado: Activo\n");
+            } else {
+                printf("Estado: Inactivo\n");
+            }
             break;
-        }
-        printf("[Error] DNI invalido. Ingrese un numero mayor que cero: ");
-    }
-    archivo = fopen("clientes.dat", "rb");
-    if(archivo == NULL){
-        printf("[Error] No se pudo abrir el archivo de clientes.\n");
-        return;
-    }	
-    while(encontrado == 0 && fread(&c, sizeof(cliente), 1, archivo) == 1){
-        if(c.dni == dni){
-            encontrado = 1;
-        }
-    }	
-    if(encontrado == 1){	
-        printf("\n--- DATOS DEL CLIENTE ---\n");
-        printf("DNI: %d\n", c.dni);
-        printf("Apellido y Nombre: %s\n", c.apellidoNombre);
-        printf("Telefono: %s\n", c.telefono);
-        printf("E-mail: %s\n", c.email);
-        printf("Direccion: %s\n", c.direccion);
-        printf("Fecha de alta: %s\n", c.fechaAlta);		
-        if(c.estado == 1){
-            printf("Estado: Activo\n");
         } else {
-            printf("Estado: Inactivo\n");
+            printf("[Error] No se encontro un cliente con el DNI %d. Intente nuevamente.\n\n", dni);
         }
-    } else {
-        printf("\n[Error] No se encontro un cliente con el DNI %d.\n", dni);
-    }		
-    fclose(archivo);
+    }
 }
 // Muestra el padron completo de clientes almacenados en el archivo binario
 void mostrarClientes(void){
@@ -344,7 +354,7 @@ void mostrarClientes(void){
     fclose(archivo);    
 }
 // Permite actualizar campos individuales del cliente sobreescribiendo con fseek
-void modificarCliente(void){	
+void modificarCliente(void){    
     cliente c;
     FILE *archivo;
     int dni;
@@ -352,39 +362,64 @@ void modificarCliente(void){
     int opcion;
     long posicion;
     char buffer[100];
-    char basura;	
+    char basura;    
     printf("\n========================================\n");
-    printf("           MODIFICAR CLIENTE            \n");
+    printf("            MODIFICAR CLIENTE           \n");
     printf("========================================\n");
-    printf("Ingrese el DNI del cliente: ");	
+    archivo = fopen("clientes.dat", "rb");
+    if(archivo == NULL){
+        printf("[Error] No se pudo abrir el archivo de clientes o aun no hay registros.\n");
+        return;
+    }    
+    int contadorClientes = 0;
+    printf("\n--- CLIENTES REGISTRADOS (DNI) ---\n");
+    while(fread(&c, sizeof(cliente), 1, archivo) == 1){
+        printf("DNI: %d | Nombre: %s\n", c.dni, c.apellidoNombre);
+        contadorClientes++;
+    }
+    fclose(archivo);
+    if(contadorClientes == 0){
+        printf("[Aviso] No hay clientes registrados en el sistema para modificar.\n");
+        return;
+    }
+    printf("----------------------------------------\n");
     while(1) {
+        printf("Ingrese el DNI del cliente (exactamente 8 digitos, o ingrese 0 para volver): ");
         if (fgets(buffer, sizeof(buffer), stdin) == NULL) continue;
         buffer[strcspn(buffer, "\n")] = '\0';
         if (buffer[0] == '\0') {
-            printf("[Aviso] No ingreso ningun dato. Ingrese DNI: ");
+            printf("[Aviso] No ingreso ningun dato.\n");
             continue;
         }
-        if (sscanf(buffer, " %d %c", &dni, &basura) == 1 && dni > 0) {
-            break;
+        if (sscanf(buffer, " %d %c", &dni, &basura) != 1) {
+            printf("[Error] Entrada invalida. Ingrese solo numeros.\n");
+            continue;
         }
-        printf("[Error] DNI invalido. Ingrese un numero mayor que cero: ");
-    }	
+        if (dni == 0) {
+            return;
+        }
+        if (dni < 10000000 || dni > 99999999) {
+            printf("[Error] DNI invalido. Debe tener exactamente 8 digitos numericos.\n");
+            continue;
+        }
+        break;
+    }    
     archivo = fopen("clientes.dat", "r+b");
     if(archivo == NULL){
         printf("[Error] No se pudo abrir el archivo de clientes.\n");
         return;
-    }	
+    }    
     while(encontrado == 0 && fread(&c, sizeof(cliente), 1, archivo) == 1){
         if(c.dni == dni){
             encontrado = 1;
             posicion = ftell(archivo) - sizeof(cliente);
         }
-    }	
+    }    
     if(encontrado == 0){
         printf("\n[Error] No se encontro un cliente con el DNI %d.\n", dni);
         fclose(archivo);
         return;
-    }	
+    }    
     printf("\n--- DATOS ACTUALES DEL CLIENTE ---\n");
     printf("DNI: %d\n", c.dni);
     printf("Nombre y Apellido: %s\n", c.apellidoNombre);
@@ -418,7 +453,7 @@ void modificarCliente(void){
                 continue;
             }
         }
-        switch(opcion){			
+        switch(opcion){            
             case 1:
                 printf("Ingrese el nuevo Nombre y Apellido: ");
                 fgets(c.apellidoNombre, 60, stdin);
@@ -428,7 +463,7 @@ void modificarCliente(void){
                     fgets(c.apellidoNombre, 60, stdin);
                     c.apellidoNombre[strcspn(c.apellidoNombre, "\n")] = '\0';
                 }
-                break;			
+                break;            
             case 2:
                 printf("Ingrese el nuevo Telefono: ");
                 fgets(c.telefono, 20, stdin);
@@ -438,7 +473,7 @@ void modificarCliente(void){
                     fgets(c.telefono, 20, stdin);
                     c.telefono[strcspn(c.telefono, "\n")] = '\0';
                 }
-                break;			
+                break;            
             case 3:
                 printf("Ingrese la nueva Direccion: ");
                 fgets(c.direccion, 100, stdin);
@@ -448,7 +483,7 @@ void modificarCliente(void){
                     fgets(c.direccion, 100, stdin);
                     c.direccion[strcspn(c.direccion, "\n")] = '\0';
                 }
-                break;			
+                break;            
             case 4:
                 printf("Ingrese el nuevo E-mail: ");
                 fgets(c.email, 60, stdin);
@@ -458,7 +493,7 @@ void modificarCliente(void){
                     fgets(c.email, 60, stdin);
                     c.email[strcspn(c.email, "\n")] = '\0';
                 }
-                break;			
+                break;            
             case 5:
                 while(1) {
                     printf("Estado (1 = Activo | 0 = Inactivo): ");
@@ -470,7 +505,7 @@ void modificarCliente(void){
                     }
                     printf("[Error] Estado invalido. Ingrese 1 (Activo) o 0 (Inactivo).\n");
                 }
-                break;			
+                break;            
             case 0:
                 if(fseek(archivo, posicion, SEEK_SET) == 0){
                     if(fwrite(&c, sizeof(cliente), 1, archivo) == 1){
@@ -481,10 +516,10 @@ void modificarCliente(void){
                 } else {
                     printf("\n[Error] No se pudo reubicar el puntero en el archivo.\n");
                 }
-                break;			
+                break;            
             default:
                 printf("[Error] Opcion invalida.\n");
-        }			
+        }            
     } while(opcion != 0);
     fclose(archivo);
 }

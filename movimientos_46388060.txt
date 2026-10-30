@@ -1,2 +1,3 @@
 
 Movimiento Nro: 2 | Alquiler: 100 | Tipo: Pago | Monto: 5000.00 | Fecha: 30/10/2027 | Patente: LL127LL
+Nro Movimiento: 10 | Nro Alquiler: 6 | Tipo: Pago | Monto: $600.00 | Fecha: 01/11/2026 | Patente: BB000BB
