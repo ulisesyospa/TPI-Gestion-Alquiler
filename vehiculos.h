@@ -7,7 +7,7 @@ typedef struct {
     char tipo[30];
     int capacidad;
     float precioPorDia;
-    int estado;
+    int estado;//1- disponible 2- no disponible
 } vehiculo;
 void menuVehiculos(void);
 void registrarVehiculo(void);

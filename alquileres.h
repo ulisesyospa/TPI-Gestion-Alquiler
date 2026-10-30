@@ -12,7 +12,7 @@ typedef struct {
     int cantidadDias;
     float importeTotal;
     float importePagado;
-    int estado;
+    int estado;//1- activo 2- finalizado 0- cancelado
 } alquiler;
 void menuAlquileres(void);
 void realizarAlquiler(void);
