@@ -12,7 +12,6 @@ int main(){
     char buffer[100];
     char basura;
     do{
-    	system("cls");
         printf("=========================================\n");
         printf("    SISTEMA DE ALQUILER DE VEHICULOS    \n");
         printf("========================================\n");
@@ -60,8 +59,9 @@ int main(){
                 printf("\nSaliendo del sistema...\n");
                 break;
             default:
-                printf("[Error] Opcion invalida.\n");    
+                printf("[Error] Opcion invalida.\n");	
         }
+        system("cls");    
     }while(opcion != 0);
     return 0;
 }
